@@ -40,7 +40,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -61,6 +63,7 @@ fun HomeScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedItemIndex by remember { mutableIntStateOf(0) }
+    var selectedCategory by remember { mutableStateOf<String?>(null) } // Added this line
     val cartItemCount = DataSource.getCartItemCount() // Get cart item count
 
     // Added "cart" and reordered. Assuming "home_route", "categories_route", "cart", "profile_route"
@@ -152,25 +155,31 @@ fun HomeScreen(navController: NavHostController) {
             }
         ) { innerPadding ->
             val categories = DataSource.getProductCategories()
-            val products = DataSource.getProducts()
+            val allProducts = DataSource.getProducts()
+            val products = remember(selectedCategory, allProducts) {
+                when (selectedCategory) {
+                    "Smartphones" -> allProducts.filter { it.name.contains("iPhone", ignoreCase = true) }
+                    "Laptops" -> allProducts.filter { it.name.contains("MacBook", ignoreCase = true) }
+                    else -> allProducts
+                }
+            }
 
             Column(modifier = Modifier.padding(innerPadding)) {
                 ProductCategoriesRow(
                     categories = categories,
+                    selectedCategory = selectedCategory, // Add this
                     onCategoryClick = { categoryName ->
-                        // TODO: Handle category click: e.g., navigate to a filtered product list
+                        selectedCategory = if (selectedCategory == categoryName) null else categoryName
                     }
                 )
                 ProductGrid(
                     products = products,
-                    categories = categories,
+                    categories = categories, // categories is still available here
                     onProductClick = { product ->
                         // Navigate to product detail screen with product ID
                         navController.navigate("product_detail/${product.id}")
-                    },
-                    onCategoryClick = { categoryName ->
-                        // TODO: Handle category click: e.g., navigate to a filtered product list
                     }
+                    // Removed onCategoryClick from ProductGrid call site
                 )
             }
         }
@@ -178,7 +187,11 @@ fun HomeScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun ProductCategoriesRow(categories: List<String>, onCategoryClick: (String) -> Unit) {
+private fun ProductCategoriesRow(
+    categories: List<String>,
+    selectedCategory: String?,
+    onCategoryClick: (String) -> Unit
+) {
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,12 +203,23 @@ private fun ProductCategoriesRow(categories: List<String>, onCategoryClick: (Str
             Card(
                 modifier = Modifier.clickable { onCategoryClick(category) },
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(
+                    containerColor = if (category == selectedCategory) {
+                        MaterialTheme.colorScheme.primary // Or any color that indicates selection
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    }
+                )
             ) {
                 Text(
                     text = category,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (category == selectedCategory) {
+                        MaterialTheme.colorScheme.onPrimary // Or a contrasting color for the text on selected background
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                 )
             }
         }
@@ -218,9 +242,9 @@ private fun HomeBanner() {
 @Composable
 private fun ProductGrid(
     products: List<Product>,
-    categories: List<String>,
-    onProductClick: (Product) -> Unit,
-    onCategoryClick: (String) -> Unit
+    categories: List<String>, // categories is still available if needed by ProductGrid, or can be removed if not
+    onProductClick: (Product) -> Unit
+    // Removed onCategoryClick from ProductGrid definition
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -229,9 +253,6 @@ private fun ProductGrid(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            ProductCategoriesRow(categories = categories, onCategoryClick = onCategoryClick)
-        }
         item(span = { GridItemSpan(maxLineSpan) }) {
             HomeBanner()
         }
