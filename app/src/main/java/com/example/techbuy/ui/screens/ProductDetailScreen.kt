@@ -219,7 +219,14 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                                 .fillMaxWidth()
                                 .padding(top = 16.dp)
                         ) {
-                            Text("Add to Cart")
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Filled.ShoppingCart,
+                                    contentDescription = "Add to Cart" // Content description for accessibility
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Add to Cart")
+                            }
                         }
                     }
                     item {
