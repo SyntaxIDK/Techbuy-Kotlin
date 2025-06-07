@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument // Added import
 import com.example.techbuy.ui.screens.*
 import com.example.techbuy.ui.screens.EditProfileScreen // Added import
+import com.example.techbuy.ui.screens.WishlistScreen
 
 @Composable
 fun TechBuyNavigation(navController: NavHostController) {
@@ -48,5 +49,6 @@ fun TechBuyNavigation(navController: NavHostController) {
         composable("profile") { ProfileScreen(navController) }
         composable("edit_profile") { EditProfileScreen(navController) } // Added route
         composable("search") { SearchScreen(navController) }
+        composable("wishlist") { WishlistScreen(navController) }
     }
 }

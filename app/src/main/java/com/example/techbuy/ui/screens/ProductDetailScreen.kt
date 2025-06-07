@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart // Added import
 import androidx.compose.material3.*
@@ -32,6 +34,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var quantity by remember { mutableIntStateOf(1) } // Corrected mutableIntStateOf
+    var isInWishlist by rememberSaveable { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -43,6 +46,8 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
             product = fetchedProduct
             if (fetchedProduct == null) {
                 error = "Product not found."
+            } else {
+                isInWishlist = DataSource.isProductInWishlist(productId)
             }
         } catch (e: Exception) {
             error = "Error loading product details."
@@ -192,6 +197,42 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                                 .padding(top = 16.dp)
                         ) {
                             Text("Add to Cart")
+                        }
+                    }
+                    item {
+                        Button(
+                            onClick = {
+                                currentProduct?.let { prod ->
+                                    if (isInWishlist) {
+                                        DataSource.removeFromWishlist(prod.id)
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = "${prod.name} removed from wishlist",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
+                                    } else {
+                                        DataSource.addToWishlist(prod)
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = "${prod.name} added to wishlist",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
+                                    }
+                                    isInWishlist = !isInWishlist
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp) // Add some space between buttons
+                        ) {
+                            Icon(
+                                imageVector = if (isInWishlist) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = if (isInWishlist) "Remove from Wishlist" else "Add to Wishlist",
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(if (isInWishlist) "Remove from Wishlist" else "Add to Wishlist")
                         }
                     }
                 }

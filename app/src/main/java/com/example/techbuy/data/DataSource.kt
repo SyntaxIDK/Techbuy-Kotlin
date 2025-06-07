@@ -7,6 +7,7 @@ import com.example.techbuy.R
 
 object DataSource {
     private val cartItems = mutableListOf<CartItem>()
+    private val wishlistItems = mutableListOf<Product>()
 
     fun getProducts(): List<Product> {
         return listOf(
@@ -124,5 +125,23 @@ object DataSource {
             email = "jane.doe@example.com",
             password = "samplePassword123" // Password field exists, so providing a sample
         )
+    }
+
+    fun addToWishlist(product: Product) {
+        if (!wishlistItems.contains(product)) {
+            wishlistItems.add(product)
+        }
+    }
+
+    fun removeFromWishlist(productId: Int) {
+        wishlistItems.removeAll { it.id == productId }
+    }
+
+    fun getWishlistItems(): List<Product> {
+        return wishlistItems.toList()
+    }
+
+    fun isProductInWishlist(productId: Int): Boolean {
+        return wishlistItems.any { it.id == productId }
     }
 }
