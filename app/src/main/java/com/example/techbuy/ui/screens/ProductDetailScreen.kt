@@ -19,15 +19,204 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.techbuy.data.DataSource
-import com.example.techbuy.data.models.Product // Keep this import
+import com.example.techbuy.data.models.Product
+import kotlinx.coroutines.delay
+
+@Composable
+fun ShimmerPlaceholder(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "shimmerTransition")
+    val translateAnim = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f, // This value should be adjusted based on the width of the composable
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, delayMillis = 300),
+        ), label = "shimmerTranslateAnim"
+    )
+
+    val brush = Brush.linearGradient(
+        colors = listOf(
+            Color.LightGray.copy(alpha = 0.9f),
+            Color.LightGray.copy(alpha = 0.3f),
+            Color.LightGray.copy(alpha = 0.9f)
+        ),
+        start = Offset.Zero,
+        end = Offset(x = translateAnim.value, y = translateAnim.value)
+    )
+
+    Box(modifier = modifier.background(brush))
+}
+
+// Extracted composable for Product Image
+@Composable
+fun ProductImage(product: Product) {
+    var showShimmer by remember { mutableStateOf(true) }
+    val imageModifier = Modifier
+        .fillMaxWidth()
+        .aspectRatio(1f)
+
+    LaunchedEffect(Unit) {
+        delay(1000) // Simulate loading delay for 1 second
+        showShimmer = false
+    }
+
+    Box(modifier = imageModifier) {
+        if (showShimmer) {
+            ShimmerPlaceholder(modifier = Modifier.fillMaxSize())
+        }
+        Image(
+            painter = painterResource(id = product.image),
+            contentDescription = product.name,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Fit,
+            alpha = if (showShimmer) 0f else 1f // Hide image content while shimmer is visible
+        )
+    }
+}
+
+// Extracted composable for Product Information
+@Composable
+fun ProductInformation(product: Product) {
+    Text(
+        text = product.name,
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+    Text(
+        text = "Price: \$${String.format("%.2f", product.price)}",
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.secondary,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+    Text(
+        text = product.description,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(), // Increased vertical padding
+        textAlign = TextAlign.Start
+    )
+}
+
+// Extracted composable for Quantity Selector
+@Composable
+fun QuantitySelector(
+    quantity: Int,
+    onQuantityDecrease: () -> Unit,
+    onQuantityIncrease: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        IconButton(onClick = onQuantityDecrease) {
+            Icon(
+                imageVector = Icons.Filled.Remove,
+                contentDescription = "Decrease quantity"
+            )
+        }
+        Text(
+            text = quantity.toString(),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        IconButton(onClick = onQuantityIncrease) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Increase quantity"
+            )
+        }
+    }
+}
+
+// Extracted composable for Action Buttons
+@Composable
+fun ProductActionButtons(
+    product: Product,
+    isInWishlist: Boolean,
+    onAddToCartClick: () -> Unit,
+    onToggleWishlistClick: () -> Unit
+) {
+    Button( // "Add to Cart" Button
+        onClick = onAddToCartClick,
+        shape = MaterialTheme.shapes.medium,
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Filled.ShoppingCart,
+                contentDescription = "Add to Cart"
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Add to Cart")
+        }
+    }
+
+    // "Add/Remove Wishlist" Button
+    if (isInWishlist) {
+        OutlinedButton(
+            onClick = onToggleWishlistClick,
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Favorite, // Icon when in wishlist
+                contentDescription = "Remove from Wishlist",
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text("Remove from Wishlist")
+        }
+    } else {
+        FilledTonalButton(
+            onClick = onToggleWishlistClick,
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.filledTonalButtonColors( // Optional: more explicit control
+                // containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                // contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.FavoriteBorder, // Icon when not in wishlist
+                contentDescription = "Add to Wishlist",
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text("Add to Wishlist")
+        }
+    }
+}
 
 @Composable
 fun OptionChip(
@@ -37,11 +226,15 @@ fun OptionChip(
 ) {
     OutlinedButton(
         onClick = onClick,
+        shape = MaterialTheme.shapes.small,
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        border = BorderStroke(
+            width = if (isSelected) 1.5.dp else 1.dp,
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+        ),
         modifier = Modifier.padding(end = 8.dp) // Add some spacing between chips
     ) {
         Text(text)
@@ -228,153 +421,80 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     item {
-                        Image(
-                            painter = painterResource(id = currentProduct.image),
-                            contentDescription = currentProduct.name,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(1f),
-                            contentScale = ContentScale.Fit
-                        )
+                        ProductImage(product = currentProduct)
                     }
-                    item {
-                        Text(
-                            text = currentProduct.name,
-                            style = MaterialTheme.typography.headlineMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+                    item { // Spacer after Image
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ProductInformation(product = currentProduct)
                     }
-                    item {
-                        Text(
-                            text = "Price: \$${String.format("%.2f", currentProduct.price)}",
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                    item {
-                        Text(
-                            text = currentProduct.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
-                            textAlign = TextAlign.Start
-                        )
-                    }
+
                     // Color Selector
-                    item {
-                        currentProduct.let { prod ->
-                            if (prod.colors.isNotEmpty()) {
-                                ColorSelector(
-                                    colors = prod.colors,
-                                    selectedColor = selectedColor.value,
-                                    onColorSelected = { color -> selectedColor.value = color }
-                                )
-                            }
+                    if (currentProduct.colors.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            ColorSelector(
+                                colors = currentProduct.colors,
+                                selectedColor = selectedColor.value,
+                                onColorSelected = { color -> selectedColor.value = color }
+                            )
                         }
                     }
 
                     // ROM Selector
-                    item {
-                        currentProduct.let { prod ->
-                            if (prod.romOptions.isNotEmpty()) {
-                                RomSelector(
-                                    romOptions = prod.romOptions,
-                                    selectedRom = selectedRom.value,
-                                    onRomSelected = { rom -> selectedRom.value = rom }
-                                )
-                            }
+                    if (currentProduct.romOptions.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            RomSelector(
+                                romOptions = currentProduct.romOptions,
+                                selectedRom = selectedRom.value,
+                                onRomSelected = { rom -> selectedRom.value = rom }
+                            )
                         }
                     }
 
                     item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                        ) {
-                            IconButton(onClick = { if (quantity > 1) quantity-- }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Remove,
-                                    contentDescription = "Decrease quantity"
-                                )
-                            }
-                            Text(
-                                text = quantity.toString(),
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                            IconButton(onClick = { quantity++ }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Add,
-                                    contentDescription = "Increase quantity"
-                                )
-                            }
-                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        QuantitySelector(
+                            quantity = quantity,
+                            onQuantityDecrease = { if (quantity > 1) quantity-- },
+                            onQuantityIncrease = { quantity++ }
+                        )
                     }
                     item {
-                        Button(
-                            onClick = {
-                                currentProduct?.let { prod ->
-                                    DataSource.addToCart(prod, quantity, selectedColor.value, selectedRom.value)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ProductActionButtons(
+                            product = currentProduct,
+                            isInWishlist = isInWishlist,
+                            onAddToCartClick = {
+                                DataSource.addToCart(currentProduct, quantity, selectedColor.value, selectedRom.value)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "${currentProduct.name} added to cart",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            },
+                            onToggleWishlistClick = {
+                                if (isInWishlist) {
+                                    DataSource.removeFromWishlist(currentProduct.id)
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            message = "${prod.name} added to cart",
+                                            message = "${currentProduct.name} removed from wishlist",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                } else {
+                                    DataSource.addToWishlist(currentProduct)
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = "${currentProduct.name} added to wishlist",
                                             duration = SnackbarDuration.Short
                                         )
                                     }
                                 }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Filled.ShoppingCart,
-                                    contentDescription = "Add to Cart" // Content description for accessibility
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Add to Cart")
+                                isInWishlist = !isInWishlist // Toggle state locally
                             }
-                        }
-                    }
-                    item {
-                        Button(
-                            onClick = {
-                                currentProduct?.let { prod ->
-                                    if (isInWishlist) {
-                                        DataSource.removeFromWishlist(prod.id)
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                message = "${prod.name} removed from wishlist",
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    } else {
-                                        DataSource.addToWishlist(prod)
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                message = "${prod.name} added to wishlist",
-                                                duration = SnackbarDuration.Short
-                                            )
-                                        }
-                                    }
-                                    isInWishlist = !isInWishlist
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp) // Add some space between buttons
-                        ) {
-                            Icon(
-                                imageVector = if (isInWishlist) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                contentDescription = if (isInWishlist) "Remove from Wishlist" else "Add to Wishlist",
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Text(if (isInWishlist) "Remove from Wishlist" else "Add to Wishlist")
-                        }
+                        )
                     }
                 }
             } else {
