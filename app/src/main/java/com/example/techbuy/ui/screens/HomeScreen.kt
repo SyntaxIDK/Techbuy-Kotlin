@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Badge // Added import
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BadgedBox // Added import
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,10 +37,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,19 +61,36 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean = false) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedItemIndex by remember { mutableIntStateOf(0) }
-    var selectedCategory by remember { mutableStateOf<String?>(null) } // Added this line
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
     val cartItemCount = DataSource.getCartItemCount() // Get cart item count
+
+    LaunchedEffect(showCategorySelector) {
+        if (showCategorySelector) {
+            showDialog = true
+            // Further dialog management will be handled by its onDismiss or other mechanisms
+        }
+    }
+
+    if (showDialog) {
+        CategorySelectionDialog(
+            onCategorySelected = { categoryName ->
+                selectedCategory = categoryName
+            },
+            onDismiss = { showDialog = false }
+        )
+    }
 
     // Added "cart" and reordered. Assuming "home_route", "categories_route", "cart", "profile_route"
     val bottomNavItems = listOf(
-        Triple("Home", Icons.Filled.Home, "home_route"),
-        Triple("Categories", Icons.Filled.List, "categories_route"),
-        Triple("Cart", Icons.Filled.ShoppingCart, "cart"),
-        Triple("Profile", Icons.Filled.Person, "profile_route")
+        Triple("Home", Icons.Filled.Home, "home"), // Changed
+        Triple("Categories", Icons.Filled.List, "home"), // Changed
+        Triple("Cart", Icons.Filled.ShoppingCart, "cart"), // Stays the same
+        Triple("Profile", Icons.Filled.Person, "profile") // Changed
     )
 
     ModalNavigationDrawer(
@@ -117,7 +136,7 @@ fun HomeScreen(navController: NavHostController) {
                                 )
                             }
                         }
-                        IconButton(onClick = { navController.navigate("profile_route") }) { // Assuming profile_route for consistency
+                        IconButton(onClick = { navController.navigate("profile") }) { // Corrected to "profile"
                             Icon(
                                 imageVector = Icons.Filled.Person,
                                 contentDescription = "User Profile"
@@ -133,7 +152,19 @@ fun HomeScreen(navController: NavHostController) {
                             selected = selectedItemIndex == index,
                             onClick = {
                                 selectedItemIndex = index
-                                navController.navigate(item.third) // Ensure this uses the route
+                                if (item.first == "Categories") { // Check if the item is "Categories" by its name (item.first)
+                                    navController.navigate("home?showCategorySelector=true") {
+                                        popUpTo("home") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    navController.navigate(item.third) {
+                                        if (item.third != "home") {
+                                             popUpTo("home")
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                }
                             },
                             label = { Text(item.first) },
                             icon = {
@@ -184,6 +215,40 @@ fun HomeScreen(navController: NavHostController) {
             }
         }
     }
+}
+
+@Composable
+private fun CategorySelectionDialog(
+    onCategorySelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val categories = DataSource.getProductCategories() // Use existing DataSource
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select a Category") },
+        text = {
+            Column {
+                categories.forEach { category ->
+                    Text(
+                        text = category,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onCategorySelected(category)
+                                onDismiss()
+                            }
+                            .padding(vertical = 12.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable

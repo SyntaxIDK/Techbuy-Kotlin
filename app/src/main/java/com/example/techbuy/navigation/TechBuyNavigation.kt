@@ -15,7 +15,16 @@ fun TechBuyNavigation(navController: NavHostController) {
         composable("welcome") {WelcomeScreen(navController)}
         composable("login") { LoginScreen(navController) }
         composable("register") { RegisterScreen(navController) }
-        composable("home") { HomeScreen(navController) }
+        composable(
+            route = "home?showCategorySelector={showCategorySelector}",
+            arguments = listOf(navArgument("showCategorySelector") {
+                type = NavType.BoolType
+                defaultValue = false
+            })
+        ) { backStackEntry ->
+            val showSelector = backStackEntry.arguments?.getBoolean("showCategorySelector") ?: false
+            HomeScreen(navController = navController, showCategorySelector = showSelector)
+        }
         composable("products") { ProductsScreen(navController) }
         composable(
             route = "product_detail/{productId}", // Changed route
