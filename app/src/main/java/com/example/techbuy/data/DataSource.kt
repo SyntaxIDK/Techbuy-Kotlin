@@ -2,6 +2,7 @@ package com.example.techbuy.data
 
 import com.example.techbuy.data.models.Product
 import com.example.techbuy.data.models.CartItem
+import com.example.techbuy.data.models.User // Added import
 import com.example.techbuy.R
 
 object DataSource {
@@ -114,5 +115,14 @@ object DataSource {
                 removeCartItem(productId) // This already removes the item
             }
         }
+    }
+
+    fun getSampleUser(): User {
+        return User(
+            id = 1,
+            name = "Jane Doe",
+            email = "jane.doe@example.com",
+            password = "samplePassword123" // Password field exists, so providing a sample
+        )
     }
 }
