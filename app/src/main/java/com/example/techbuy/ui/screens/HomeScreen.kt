@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items // For LazyListScope (LazyRow, LazyColumn)
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items // For LazyGridScope (LazyVerticalGrid)
 import androidx.compose.material.icons.Icons
@@ -142,12 +143,15 @@ fun HomeScreen(navController: NavHostController) {
                         // TODO: Handle category click: e.g., navigate to a filtered product list
                     }
                 )
-                HomeBanner()
                 ProductGrid(
                     products = products,
+                    categories = categories,
                     onProductClick = { product ->
                         // Navigate to product detail screen with product ID
                         navController.navigate("product_detail/${product.id}")
+                    },
+                    onCategoryClick = { categoryName ->
+                        // TODO: Handle category click: e.g., navigate to a filtered product list
                     }
                 )
             }
@@ -194,7 +198,12 @@ private fun HomeBanner() {
 }
 
 @Composable
-private fun ProductGrid(products: List<Product>, onProductClick: (Product) -> Unit) {
+private fun ProductGrid(
+    products: List<Product>,
+    categories: List<String>,
+    onProductClick: (Product) -> Unit,
+    onCategoryClick: (String) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier.padding(horizontal = 8.dp),
@@ -202,6 +211,12 @@ private fun ProductGrid(products: List<Product>, onProductClick: (Product) -> Un
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            ProductCategoriesRow(categories = categories, onCategoryClick = onCategoryClick)
+        }
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            HomeBanner()
+        }
         // Ensure this items is from androidx.compose.foundation.lazy.grid.LazyGridScope
         items(products, key = { product -> product.id }) { product ->
             ProductCard(
