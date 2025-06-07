@@ -7,7 +7,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.ShoppingCart // Added import
 import androidx.compose.material3.*
+import androidx.compose.material3.Badge // Added import
+import androidx.compose.material3.BadgedBox // Added import
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -58,6 +61,23 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate("cart") }) {
+                        BadgedBox(
+                            badge = {
+                                val cartItemCount = DataSource.getCartItemCount() // Get current count
+                                if (cartItemCount > 0) {
+                                    Badge { Text(cartItemCount.toString()) }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ShoppingCart,
+                                contentDescription = "Shopping Cart"
+                            )
+                        }
                     }
                 }
             )
