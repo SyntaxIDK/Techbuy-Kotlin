@@ -1,0 +1,53 @@
+# Android Studio
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+build/
+
+# Local configuration files
+local.properties
+
+# Mac system files
+.DS_Store
+
+# Android specific
+*.apk
+*.ap_ 
+*.dex
+*.class
+*.log
+*.csv
+*.dat
+*.tar
+*.tgz
+*.zip
+*.jar
+
+# Generated files
+*/*.apk
+*/*.ap_
+*/*.dex
+*/*.log
+*/*.csv
+*/*.dat
+
+# Android Studio captures generated files
+captures/
+
+# NDK
+*.so
+
+# User-specific files
+*.user
+*.userprefs
+
+# Windows system files
+Thumbs.db
+
+# Ignore Gradle wrapper files for different OS platforms
+gradle-wrapper.jar
+
+# Miscellaneous
+*~.swp
