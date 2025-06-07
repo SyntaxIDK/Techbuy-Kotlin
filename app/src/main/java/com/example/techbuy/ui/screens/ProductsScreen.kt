@@ -21,7 +21,7 @@ fun ProductsScreen(navController: NavHostController) {
         Text("Products List")
         LazyColumn {
             items(products) { product ->
-                ProductCard(product.name, product.image)
+                ProductCard(product.name, product.image, onClick = {}) // onClick added
             }
         }
     }
