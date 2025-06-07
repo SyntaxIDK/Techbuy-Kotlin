@@ -131,7 +131,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                         ) {
                             IconButton(onClick = { if (quantity > 1) quantity-- }) {
                                 Icon(
-                                    imageVector = Icons.Default.Remove,
+                                    imageVector = Icons.Filled.Remove,
                                     contentDescription = "Decrease quantity"
                                 )
                             }
@@ -142,7 +142,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                             )
                             IconButton(onClick = { quantity++ }) {
                                 Icon(
-                                    imageVector = Icons.Default.Add,
+                                    imageVector = Icons.Filled.Add,
                                     contentDescription = "Increase quantity"
                                 )
                             }
