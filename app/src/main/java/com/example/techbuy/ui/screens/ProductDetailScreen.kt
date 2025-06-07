@@ -69,6 +69,36 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                     }
                 },
                 actions = {
+                    // Wishlist Icon Button
+                    IconButton(onClick = {
+                        product?.let { prod ->
+                            if (isInWishlist) {
+                                DataSource.removeFromWishlist(prod.id)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "${prod.name} removed from wishlist",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            } else {
+                                DataSource.addToWishlist(prod)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "${prod.name} added to wishlist",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                            isInWishlist = !isInWishlist
+                        }
+                    }) {
+                        Icon(
+                            imageVector = if (isInWishlist) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = if (isInWishlist) "Remove from Wishlist" else "Add to Wishlist",
+                            tint = if (isInWishlist) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    // Cart Icon Button
                     IconButton(onClick = { navController.navigate("cart") }) {
                         BadgedBox(
                             badge = {

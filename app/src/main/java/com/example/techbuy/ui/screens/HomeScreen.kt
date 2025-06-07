@@ -163,7 +163,10 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
                                         }
                                     }
                                     "Wishlist" -> {
-                                        println("Wishlist clicked (Not implemented)")
+                                        navController.navigate("wishlist") {
+                                            popUpTo("home") // Or the current route of HomeScreen if different
+                                            launchSingleTop = true
+                                        }
                                     }
                                 }
                             },
