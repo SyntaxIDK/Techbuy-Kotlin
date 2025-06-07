@@ -19,4 +19,8 @@ object DataSource {
     fun getProductCategories(): List<String> {
         return listOf("iPhones", "MacBooks")
     }
+
+    fun getProductById(productId: Int): Product? {
+        return getProducts().find { it.id == productId }
+    }
 }

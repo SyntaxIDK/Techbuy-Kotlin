@@ -146,8 +146,8 @@ fun HomeScreen(navController: NavHostController) {
                 ProductGrid(
                     products = products,
                     onProductClick = { product ->
-                        // Navigate to product detail screen
-                        navController.navigate("product_detail")
+                        // Navigate to product detail screen with product ID
+                        navController.navigate("product_detail/${product.id}")
                     }
                 )
             }
