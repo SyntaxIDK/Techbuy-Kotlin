@@ -19,6 +19,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -27,6 +29,74 @@ import androidx.navigation.NavHostController
 import com.example.techbuy.data.DataSource
 import com.example.techbuy.data.models.Product // Keep this import
 
+@Composable
+fun OptionChip(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    OutlinedButton(
+        onClick = onClick,
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        modifier = Modifier.padding(end = 8.dp) // Add some spacing between chips
+    ) {
+        Text(text)
+    }
+}
+
+@Composable
+fun ColorSelector(
+    colors: List<String>,
+    selectedColor: String?,
+    onColorSelected: (String) -> Unit
+) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text("Color:", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            colors.forEach { color ->
+                OptionChip(
+                    text = color,
+                    isSelected = selectedColor == color,
+                    onClick = { onColorSelected(color) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RomSelector(
+    romOptions: List<String>,
+    selectedRom: String?,
+    onRomSelected: (String) -> Unit
+) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text("Storage:", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            romOptions.forEach { rom ->
+                OptionChip(
+                    text = rom,
+                    isSelected = selectedRom == rom,
+                    onClick = { onRomSelected(rom) }
+                )
+            }
+        }
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(navController: NavHostController, productId: Int) {
@@ -34,9 +104,9 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var quantity by remember { mutableIntStateOf(1) } // Corrected mutableIntStateOf
-    // Key rememberSaveable to product?.id if you want isInWishlist to reset if the product context changes.
-    // However, the LaunchedEffects below handle keeping it in sync.
     var isInWishlist by rememberSaveable { mutableStateOf(false) }
+    val selectedColor = rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedRom = rememberSaveable { mutableStateOf<String?>(null) }
 
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -44,6 +114,9 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
 
     LaunchedEffect(productId) {
         isLoading = true
+        error = null // Reset error on new product load
+        selectedColor.value = null // Reset color selection
+        selectedRom.value = null // Reset ROM selection
         try {
             val fetchedProduct = DataSource.getProductById(productId)
             product = fetchedProduct
@@ -51,6 +124,13 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                 error = "Product not found."
             } else {
                 isInWishlist = DataSource.isProductInWishlist(productId)
+                // Initialize selections
+                if (fetchedProduct.colors.isNotEmpty()) {
+                    selectedColor.value = fetchedProduct.colors.first()
+                }
+                if (fetchedProduct.romOptions.isNotEmpty()) {
+                    selectedRom.value = fetchedProduct.romOptions.first()
+                }
             }
         } catch (e: Exception) {
             error = "Error loading product details."
@@ -66,6 +146,19 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
             }
         }
     }
+
+    // Initialize selectedColor and selectedRom when product data is available
+    LaunchedEffect(product) {
+        product?.let {
+            if (it.colors.isNotEmpty() && selectedColor.value == null) {
+                selectedColor.value = it.colors.first()
+            }
+            if (it.romOptions.isNotEmpty() && selectedRom.value == null) {
+                selectedRom.value = it.romOptions.first()
+            }
+        }
+    }
+
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -167,14 +260,32 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                             textAlign = TextAlign.Start
                         )
                     }
+                    // Color Selector
                     item {
-                        Text(
-                            "Specifications Placeholder",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
-                            textAlign = TextAlign.Start
-                        )
+                        currentProduct.let { prod ->
+                            if (prod.colors.isNotEmpty()) {
+                                ColorSelector(
+                                    colors = prod.colors,
+                                    selectedColor = selectedColor.value,
+                                    onColorSelected = { color -> selectedColor.value = color }
+                                )
+                            }
+                        }
                     }
+
+                    // ROM Selector
+                    item {
+                        currentProduct.let { prod ->
+                            if (prod.romOptions.isNotEmpty()) {
+                                RomSelector(
+                                    romOptions = prod.romOptions,
+                                    selectedRom = selectedRom.value,
+                                    onRomSelected = { rom -> selectedRom.value = rom }
+                                )
+                            }
+                        }
+                    }
+
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -206,7 +317,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                         Button(
                             onClick = {
                                 currentProduct?.let { prod ->
-                                    DataSource.addToCart(prod, quantity)
+                                    DataSource.addToCart(prod, quantity, selectedColor.value, selectedRom.value)
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
                                             message = "${prod.name} added to cart",

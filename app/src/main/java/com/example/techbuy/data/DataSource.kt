@@ -17,7 +17,9 @@ object DataSource {
                 image = R.drawable.iphone16,
                 price = 999.99,
                 category = "Smartphones",
-                description = "The latest iPhone with an advanced dual-camera system, A17 Bionic chip, and even longer battery life."
+                description = "The latest iPhone with an advanced dual-camera system, A17 Bionic chip, and even longer battery life.",
+                colors = listOf("Black", "White", "Blue", "Pink"),
+                romOptions = listOf("128GB", "256GB", "512GB")
             ),
             Product(
                 id = 2,
@@ -25,7 +27,9 @@ object DataSource {
                 image = R.drawable.iphone16p,
                 price = 1199.99,
                 category = "Smartphones",
-                description = "The ultimate iPhone experience with a Pro camera system, ProMotion technology, and the powerful A17 Bionic chip."
+                description = "The ultimate iPhone experience with a Pro camera system, ProMotion technology, and the powerful A17 Bionic chip.",
+                colors = listOf("Graphite", "Silver", "Gold", "Sierra Blue"),
+                romOptions = listOf("128GB", "256GB", "512GB", "1TB")
             ),
             Product(
                 id = 3,
@@ -33,7 +37,9 @@ object DataSource {
                 image = R.drawable.iphone16pm,
                 price = 1299.99,
                 category = "Smartphones",
-                description = "The largest and most advanced iPhone, featuring a stunning display, incredible camera capabilities, and maximum performance."
+                description = "The largest and most advanced iPhone, featuring a stunning display, incredible camera capabilities, and maximum performance.",
+                colors = listOf("Graphite", "Silver", "Gold", "Sierra Blue"),
+                romOptions = listOf("128GB", "256GB", "512GB", "1TB")
             ),
             Product(
                 id = 4,
@@ -41,7 +47,9 @@ object DataSource {
                 image = R.drawable.macbookm1,
                 price = 1999.99,
                 category = "Laptops",
-                description = "The groundbreaking MacBook with the Apple M1 chip, offering incredible performance and battery life in a thin and light design."
+                description = "The groundbreaking MacBook with the Apple M1 chip, offering incredible performance and battery life in a thin and light design.",
+                colors = listOf("Space Gray", "Silver"),
+                romOptions = listOf("256GB", "512GB", "1TB")
             ),
             Product(
                 id = 5,
@@ -49,7 +57,9 @@ object DataSource {
                 image = R.drawable.macbookm2,
                 price = 2599.99,
                 category = "Laptops",
-                description = "Experience next-level performance with the MacBook powered by the Apple M2 chip, perfect for demanding workflows."
+                description = "Experience next-level performance with the MacBook powered by the Apple M2 chip, perfect for demanding workflows.",
+                colors = listOf("Space Gray", "Silver", "Midnight", "Starlight"),
+                romOptions = listOf("256GB", "512GB", "1TB", "2TB")
             ),
             Product(
                 id = 6,
@@ -57,7 +67,9 @@ object DataSource {
                 image = R.drawable.macbookm3,
                 price = 2999.99,
                 category = "Laptops",
-                description = "Unleash your creativity with the MacBook featuring the cutting-edge Apple M3 chip, delivering power and efficiency."
+                description = "Unleash your creativity with the MacBook featuring the cutting-edge Apple M3 chip, delivering power and efficiency.",
+                colors = listOf("Space Gray", "Silver"),
+                romOptions = listOf("512GB", "1TB", "2TB")
             ),
             Product(
                 id = 7,
@@ -65,7 +77,9 @@ object DataSource {
                 image = R.drawable.macbookm4,
                 price = 3599.99,
                 category = "Laptops",
-                description = "The pinnacle of MacBook performance, the M4 model redefines what's possible in a portable Mac."
+                description = "The pinnacle of MacBook performance, the M4 model redefines what's possible in a portable Mac.",
+                colors = listOf("Space Black", "Silver"),
+                romOptions = listOf("1TB", "2TB", "4TB")
             )
         )
     }
@@ -78,14 +92,17 @@ object DataSource {
         return getProducts().find { it.id == productId }
     }
 
-    fun addToCart(product: Product, quantity: Int) {
-        val existingItemIndex = cartItems.indexOfFirst { it.product.id == product.id }
+    fun addToCart(product: Product, quantity: Int, color: String?, rom: String?) {
+        val existingItemIndex = cartItems.indexOfFirst {
+            it.product.id == product.id && it.selectedColor == color && it.selectedRom == rom
+        }
         if (existingItemIndex != -1) {
             val existingItem = cartItems[existingItemIndex]
-            // Create a new CartItem instance
-            cartItems[existingItemIndex] = CartItem(existingItem.product, existingItem.quantity + quantity)
+            // Update quantity for existing item
+            cartItems[existingItemIndex] = existingItem.copy(quantity = existingItem.quantity + quantity)
         } else {
-            cartItems.add(CartItem(product, quantity))
+            // Add new item with color and ROM
+            cartItems.add(CartItem(product = product, quantity = quantity, selectedColor = color, selectedRom = rom))
         }
     }
 
@@ -101,19 +118,25 @@ object DataSource {
         cartItems.clear()
     }
 
-    fun removeCartItem(productId: Int) {
-        cartItems.removeAll { it.product.id == productId }
+    // Consider if remove and decrease quantity should also account for color/ROM
+    // For now, keeping them as they are, removing all items of a certain product ID
+    // or decreasing the first found. This might need refinement based on exact requirements.
+
+    fun removeCartItem(productId: Int, color: String?, rom: String?) {
+        cartItems.removeAll { it.product.id == productId && it.selectedColor == color && it.selectedRom == rom }
     }
 
-    fun decreaseCartItemQuantity(productId: Int) {
-        val existingItemIndex = cartItems.indexOfFirst { it.product.id == productId }
+    fun decreaseCartItemQuantity(productId: Int, color: String?, rom: String?) {
+        val existingItemIndex = cartItems.indexOfFirst {
+            it.product.id == productId && it.selectedColor == color && it.selectedRom == rom
+        }
         if (existingItemIndex != -1) {
             val existingItem = cartItems[existingItemIndex]
             if (existingItem.quantity > 1) {
-                // Create a new CartItem instance
-                cartItems[existingItemIndex] = CartItem(existingItem.product, existingItem.quantity - 1)
+                cartItems[existingItemIndex] = existingItem.copy(quantity = existingItem.quantity - 1)
             } else {
-                removeCartItem(productId) // This already removes the item
+                // If quantity is 1, remove the specific item
+                cartItems.removeAt(existingItemIndex)
             }
         }
     }

@@ -8,24 +8,43 @@ import org.junit.Test
 class DataSourceTest {
 
     // Sample products for testing
-    private val product1 = Product(1, "Test Product 1", 0, 10.0, "Category A", "Description 1")
-    private val product2 = Product(2, "Test Product 2", 0, 20.0, "Category B", "Description 2")
-    private val product3 = Product(3, "Test Product 3", 0, 30.0, "Category A", "Description 3")
+    // Updated to include colors and romOptions for cart testing
+    private lateinit var product1: Product
+    private lateinit var product2: Product
 
     @Before
     fun setUp() {
-        // Clear wishlist before each test to ensure test independence
-        // This requires a way to clear the wishlist, which is not currently in DataSource.
-        // For now, we'll assume direct manipulation or add a clearWishlist method if necessary.
-        // Let's proceed by manually ensuring wishlist is empty for tests that need it,
-        // or by re-evaluating if a clearWishlist() in DataSource is essential for testing.
+        // Clear cart and wishlist before each test to ensure test independence
+        DataSource.clearCart() // Assumes clearCart() exists and works
 
-        // To ensure a clean state for wishlist tests, we'll manually clear it by removing items one by one.
-        // This is not ideal, a direct clear method in DataSource would be better.
-        val currentWishlist = DataSource.getWishlistItems().toList() // Create a copy to avoid ConcurrentModificationException
+        val currentWishlist = DataSource.getWishlistItems().toList()
         currentWishlist.forEach { product ->
             DataSource.removeFromWishlist(product.id)
         }
+
+        // Initialize products with color and ROM options
+        product1 = Product(
+            id = 1,
+            name = "Test Phone X",
+            image = 0, // Dummy image res ID
+            price = 999.0,
+            category = "Smartphones",
+            description = "A test smartphone",
+            colors = listOf("Black", "Silver", "Gold"),
+            romOptions = listOf("128GB", "256GB", "512GB")
+        )
+        product2 = Product(
+            id = 2,
+            name = "Test Laptop Y",
+            image = 0, // Dummy image res ID
+            price = 1299.0,
+            category = "Laptops",
+            description = "A test laptop",
+            colors = listOf("Space Gray", "Silver"),
+            romOptions = listOf("256GB", "512GB", "1TB")
+        )
+        // Note: product3 is not used in the new cart tests, can be removed if not needed elsewhere
+        // private val product3 = Product(3, "Test Product 3", 0, 30.0, "Category A", "Description 3")
     }
 
 
@@ -142,4 +161,125 @@ class DataSourceTest {
         val foundProduct = DataSource.getProductById(nonExistentProductId)
         assertNull("Product should not be found for a non-existent ID.", foundProduct)
     }
+
+    // --- Cart Tests with Variants ---
+
+    @Test
+    fun addToCart_newVariant_addsItem() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        val cartItems = DataSource.getCartItems()
+        assertEquals(1, cartItems.size)
+        assertEquals(product1.id, cartItems[0].product.id)
+        assertEquals("Black", cartItems[0].selectedColor)
+        assertEquals("128GB", cartItems[0].selectedRom)
+        assertEquals(1, cartItems[0].quantity)
+    }
+
+    @Test
+    fun addToCart_sameVariant_increasesQuantity() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.addToCart(product1, 2, "Black", "128GB")
+        val cartItems = DataSource.getCartItems()
+        assertEquals(1, cartItems.size)
+        assertEquals(3, cartItems[0].quantity)
+    }
+
+    @Test
+    fun addToCart_differentColorVariant_addsNewItem() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.addToCart(product1, 1, "Silver", "128GB")
+        val cartItems = DataSource.getCartItems()
+        assertEquals(2, cartItems.size)
+        // Verify items are distinct and correct
+        assertTrue(cartItems.any { it.selectedColor == "Black" && it.selectedRom == "128GB" })
+        assertTrue(cartItems.any { it.selectedColor == "Silver" && it.selectedRom == "128GB" })
+    }
+
+    @Test
+    fun addToCart_differentRomVariant_addsNewItem() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.addToCart(product1, 1, "Black", "256GB")
+        val cartItems = DataSource.getCartItems()
+        assertEquals(2, cartItems.size)
+        assertTrue(cartItems.any { it.selectedColor == "Black" && it.selectedRom == "128GB" })
+        assertTrue(cartItems.any { it.selectedColor == "Black" && it.selectedRom == "256GB" })
+    }
+
+    @Test
+    fun addToCart_differentProduct_addsNewItem() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.addToCart(product2, 1, "Space Gray", "256GB")
+        val cartItems = DataSource.getCartItems()
+        assertEquals(2, cartItems.size)
+        assertTrue(cartItems.any { it.product.id == product1.id })
+        assertTrue(cartItems.any { it.product.id == product2.id })
+    }
+
+    @Test
+    fun removeCartItem_specificVariant_removesCorrectly() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.addToCart(product1, 1, "Silver", "128GB")
+        DataSource.removeCartItem(product1.id, "Black", "128GB")
+        val cartItems = DataSource.getCartItems()
+        assertEquals(1, cartItems.size)
+        assertEquals("Silver", cartItems[0].selectedColor)
+        assertEquals("128GB", cartItems[0].selectedRom)
+    }
+
+    @Test
+    fun removeCartItem_nonExistentVariant_doesNothing() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.removeCartItem(product1.id, "Gold", "128GB") // Gold variant not added
+        val cartItems = DataSource.getCartItems()
+        assertEquals(1, cartItems.size)
+    }
+
+    @Test
+    fun decreaseCartItemQuantity_specificVariant_decreasesQuantity() {
+        DataSource.addToCart(product1, 2, "Black", "128GB")
+        DataSource.addToCart(product1, 1, "Silver", "128GB")
+        DataSource.decreaseCartItemQuantity(product1.id, "Black", "128GB")
+        val cartItems = DataSource.getCartItems()
+        val itemBlack = cartItems.find { it.selectedColor == "Black" && it.selectedRom == "128GB" }
+        val itemSilver = cartItems.find { it.selectedColor == "Silver" && it.selectedRom == "128GB" }
+
+        assertNotNull(itemBlack)
+        assertEquals(1, itemBlack?.quantity)
+        assertNotNull(itemSilver)
+        assertEquals(1, itemSilver?.quantity)
+        assertEquals(2, cartItems.size) // Ensure total items is still 2
+    }
+
+    @Test
+    fun decreaseCartItemQuantity_toZero_removesItem() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.addToCart(product1, 1, "Silver", "128GB") // Add another item to ensure it's not affected
+        DataSource.decreaseCartItemQuantity(product1.id, "Black", "128GB")
+        val cartItems = DataSource.getCartItems()
+        val itemBlack = cartItems.find { it.selectedColor == "Black" && it.selectedRom == "128GB" }
+
+        assertNull("Item should be removed when quantity reaches zero", itemBlack)
+        assertEquals(1, cartItems.size) // Silver item should remain
+        assertEquals("Silver", cartItems[0].selectedColor)
+    }
+
+    @Test
+    fun clearCart_emptiesCart() {
+        DataSource.addToCart(product1, 1, "Black", "128GB")
+        DataSource.addToCart(product2, 1, "Space Gray", "256GB")
+        DataSource.clearCart()
+        val cartItems = DataSource.getCartItems()
+        assertTrue(cartItems.isEmpty())
+    }
+
+    // Test case for adding product with null color/ROM, if applicable
+    // Based on current Product.kt and DataSource.kt, color/ROM are expected.
+    // If nulls were permissible for selectedColor/selectedRom in CartItem, this test would be relevant.
+    // For now, assuming color/ROM are always selected for variants.
+    // @Test
+    // fun addToCart_nullVariant_ifPermitted() {
+    //     DataSource.addToCart(product1, 1, null, null)
+    //     val cartItems = DataSource.getCartItems()
+    //     // Assertions based on how null variants are handled
+    // }
 }

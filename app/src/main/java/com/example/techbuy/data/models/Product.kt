@@ -6,5 +6,7 @@ data class Product(
     val image: Int, // Assuming this is a Drawable resource ID
     val price: Double,
     val category: String,
-    val description: String
+    val description: String,
+    val colors: List<String>,
+    val romOptions: List<String>
 )
