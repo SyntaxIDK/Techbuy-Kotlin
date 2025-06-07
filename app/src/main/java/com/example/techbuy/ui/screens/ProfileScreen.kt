@@ -57,14 +57,13 @@ fun ProfileScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        ProfileMenuItem(
-            text = "My Wishlist",
-            icon = Icons.Filled.Favorite,
+        Button(
             onClick = { navController.navigate("wishlist") }
-        )
+        ) {
+            Text("My Wishlist")
+        }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = { navController.navigate("edit_profile") }
@@ -82,6 +81,9 @@ fun ProfileScreen(navController: NavHostController) {
     }
 }
 
+// The ProfileMenuItem composable can be kept if it's used elsewhere or removed if not.
+// For this task, we are only changing its usage for "My Wishlist".
+// If it's definitely not needed anywhere else, it can be removed in a separate cleanup task.
 @Composable
 fun ProfileMenuItem(
     text: String,
