@@ -34,7 +34,10 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var quantity by remember { mutableIntStateOf(1) } // Corrected mutableIntStateOf
+    // Key rememberSaveable to product?.id if you want isInWishlist to reset if the product context changes.
+    // However, the LaunchedEffects below handle keeping it in sync.
     var isInWishlist by rememberSaveable { mutableStateOf(false) }
+
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -55,6 +58,15 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
         isLoading = false
     }
 
+    // LaunchedEffect to update isInWishlist if the product ID changes or the global wishlist changes.
+    LaunchedEffect(product?.id, DataSource.getWishlistItems()) {
+        product?.let { prod ->
+            if (prod.id == productId) { // Ensure we are checking for the current product
+                isInWishlist = DataSource.isProductInWishlist(prod.id)
+            }
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -71,26 +83,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                 actions = {
                     // Wishlist Icon Button
                     IconButton(onClick = {
-                        product?.let { prod ->
-                            if (isInWishlist) {
-                                DataSource.removeFromWishlist(prod.id)
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = "${prod.name} removed from wishlist",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            } else {
-                                DataSource.addToWishlist(prod)
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = "${prod.name} added to wishlist",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            }
-                            isInWishlist = !isInWishlist
-                        }
+                        navController.navigate("wishlist")
                     }) {
                         Icon(
                             imageVector = if (isInWishlist) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
