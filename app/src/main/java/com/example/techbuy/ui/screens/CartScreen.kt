@@ -59,19 +59,19 @@ fun CartScreen(navController: NavHostController) {
                         .weight(1f)
                         .padding(16.dp)
                 ) {
-                    items(cartItems, key = { it.product.id }) { item ->
+                    items(cartItems, key = { "${it.product.id}-${it.selectedColor}-${it.selectedRom}" }) { item ->
                         CartListItem(
                             item = item,
                             onRemoveItem = {
-                                DataSource.removeCartItem(item.product.id)
+                                DataSource.removeCartItem(item.product.id, item.selectedColor, item.selectedRom)
                                 updateCartItems()
                             },
                             onIncreaseQuantity = {
-                                DataSource.addToCart(item.product, 1) // Adds 1 to existing
+                                DataSource.addToCart(item.product, 1, item.selectedColor, item.selectedRom)
                                 updateCartItems()
                             },
                             onDecreaseQuantity = {
-                                DataSource.decreaseCartItemQuantity(item.product.id)
+                                DataSource.decreaseCartItemQuantity(item.product.id, item.selectedColor, item.selectedRom)
                                 updateCartItems()
                             }
                         )
@@ -115,6 +115,13 @@ fun CartListItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.product.name, style = MaterialTheme.typography.titleMedium)
+            // Display selected color and ROM
+            item.selectedColor?.let {
+                Text("Color: $it", style = MaterialTheme.typography.bodySmall)
+            }
+            item.selectedRom?.let {
+                Text("Storage: $it", style = MaterialTheme.typography.bodySmall)
+            }
             Text(
                 "Price: \$${String.format("%.2f", item.product.price)}",
                 style = MaterialTheme.typography.bodyMedium
