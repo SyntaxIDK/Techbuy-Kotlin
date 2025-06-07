@@ -1,5 +1,6 @@
 package com.example.techbuy.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ fun ProfileScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background) // Apply background color
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center // Center content vertically for now
@@ -45,14 +47,16 @@ fun ProfileScreen(navController: NavHostController) {
 
         Text(
             text = user.name, // User.name field for username
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground // Explicitly set text color
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = user.email,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground // Explicitly set text color
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -106,11 +110,13 @@ fun ProfileMenuItem(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onBackground, // Explicitly set text color for menu item
             modifier = Modifier.weight(1f)
         )
         Icon(
             imageVector = Icons.Filled.KeyboardArrowRight,
-            contentDescription = "Go to $text"
+            contentDescription = "Go to $text",
+            tint = MaterialTheme.colorScheme.onBackground // Explicitly set icon tint for menu item
         )
     }
 }
