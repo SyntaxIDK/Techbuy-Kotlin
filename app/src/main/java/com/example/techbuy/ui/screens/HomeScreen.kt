@@ -10,8 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.items // This is for LazyRow
+// import androidx.compose.foundation.lazy.items // Remove this line - already have one for LazyRow, grid has its own
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+// import androidx.compose.foundation.lazy.grid.items // Add this line - this will be specified for grid below
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -24,12 +30,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -37,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.techbuy.R
 import com.example.techbuy.data.DataSource
+import com.example.techbuy.data.models.Product // Ensure this is imported
+import com.example.techbuy.ui.components.ProductCard
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,6 +58,13 @@ import kotlinx.coroutines.launch
 fun HomeScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
+
+    val bottomNavItems = listOf(
+        Triple("Home", Icons.Filled.Home, "home_route"),
+        Triple("Categories", Icons.Filled.List, "categories_route"),
+        Triple("Profile", Icons.Filled.Person, "profile_route")
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -90,45 +111,103 @@ fun HomeScreen(navController: NavHostController) {
                         }
                     }
                 )
-            }
-        ) { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
-            val categories = DataSource.getProductCategories()
-
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(categories) { category ->
-                    Card(
-                        modifier = Modifier.clickable { /* TODO: Handle category click */ },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Text(
-                            text = category,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            style = MaterialTheme.typography.titleSmall
+            },
+            bottomBar = {
+                NavigationBar {
+                    bottomNavItems.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            selected = selectedItemIndex == index,
+                            onClick = {
+                                selectedItemIndex = index
+                                // TODO: navController.navigate(item.third) when routes are set up
+                            },
+                            label = { Text(item.first) },
+                            icon = {
+                                Icon(
+                                    imageVector = item.second,
+                                    contentDescription = item.first
+                                )
+                            }
                         )
                     }
                 }
             }
+        ) { innerPadding ->
+            val categories = DataSource.getProductCategories()
+            val products = DataSource.getProducts()
 
-            Image(
-                painter = painterResource(id = R.drawable.home_banner),
-                contentDescription = "Promotional Banner",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(vertical = 8.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            Text("Home Screen Content")
+            Column(modifier = Modifier.padding(innerPadding)) {
+                ProductCategoriesRow(
+                    categories = categories,
+                    onCategoryClick = { categoryName ->
+                        // TODO: Handle category click: e.g., navigate to a filtered product list
+                    }
+                )
+                HomeBanner()
+                ProductGrid(
+                    products = products,
+                    onProductClick = { product ->
+                        // TODO: Handle product click: e.g., navigate to product detail screen
+                    }
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun ProductCategoriesRow(categories: List<String>, onCategoryClick: (String) -> Unit) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(categories) { category -> // This items is from androidx.compose.foundation.lazy.LazyListScope
+            Card(
+                modifier = Modifier.clickable { onCategoryClick(category) },
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Text(
+                    text = category,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeBanner() {
+    Image(
+        painter = painterResource(id = R.drawable.home_banner),
+        contentDescription = "Promotional Banner",
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .padding(vertical = 8.dp),
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+private fun ProductGrid(products: List<Product>, onProductClick: (Product) -> Unit) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.padding(horizontal = 8.dp),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Ensure this items is from androidx.compose.foundation.lazy.grid.LazyGridScope
+        items(products, key = { product -> product.id }) { product ->
+            ProductCard(
+                productName = product.name,
+                productImage = product.image
+            )
         }
     }
 }
