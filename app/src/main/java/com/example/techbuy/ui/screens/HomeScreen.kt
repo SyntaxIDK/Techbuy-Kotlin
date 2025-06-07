@@ -207,7 +207,8 @@ private fun ProductGrid(products: List<Product>, onProductClick: (Product) -> Un
             ProductCard(
                 productName = product.name,
                 productImage = product.image,
-                onClick = { onProductClick(product) } // Pass the product to the handler
+                productPrice = product.price, // Added productPrice
+                onClick = { onProductClick(product) }
             )
         }
     }

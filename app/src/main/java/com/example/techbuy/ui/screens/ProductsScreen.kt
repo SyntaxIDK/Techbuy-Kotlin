@@ -21,7 +21,16 @@ fun ProductsScreen(navController: NavHostController) {
         Text("Products List")
         LazyColumn {
             items(products) { product ->
-                ProductCard(product.name, product.image, onClick = {}) // onClick added
+                ProductCard(
+                    productName = product.name,
+                    productImage = product.image,
+                    productPrice = product.price, // Added productPrice
+                    onClick = {
+                        // Decide if clicking products on this screen should also navigate
+                        // For now, retain the empty onClick from previous fix unless specified otherwise.
+                        // If navigation is needed: navController.navigate("product_detail/${product.id}")
+                    }
+                )
             }
         }
     }
