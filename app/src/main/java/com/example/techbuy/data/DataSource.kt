@@ -77,9 +77,11 @@ object DataSource {
     }
 
     fun addToCart(product: Product, quantity: Int) {
-        val existingItem = cartItems.find { it.product.id == product.id }
-        if (existingItem != null) {
-            existingItem.quantity += quantity
+        val existingItemIndex = cartItems.indexOfFirst { it.product.id == product.id }
+        if (existingItemIndex != -1) {
+            val existingItem = cartItems[existingItemIndex]
+            // Create a new CartItem instance
+            cartItems[existingItemIndex] = CartItem(existingItem.product, existingItem.quantity + quantity)
         } else {
             cartItems.add(CartItem(product, quantity))
         }
@@ -102,12 +104,14 @@ object DataSource {
     }
 
     fun decreaseCartItemQuantity(productId: Int) {
-        val existingItem = cartItems.find { it.product.id == productId }
-        if (existingItem != null) {
+        val existingItemIndex = cartItems.indexOfFirst { it.product.id == productId }
+        if (existingItemIndex != -1) {
+            val existingItem = cartItems[existingItemIndex]
             if (existingItem.quantity > 1) {
-                existingItem.quantity--
+                // Create a new CartItem instance
+                cartItems[existingItemIndex] = CartItem(existingItem.product, existingItem.quantity - 1)
             } else {
-                removeCartItem(productId)
+                removeCartItem(productId) // This already removes the item
             }
         }
     }
