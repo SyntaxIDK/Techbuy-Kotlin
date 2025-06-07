@@ -120,8 +120,8 @@ object DataSource {
     fun getSampleUser(): User {
         return User(
             id = 1,
-            name = "Kaveesha Senarathne",
-            email = "kaveesha@techbuy.com",
+            name = "Jane Doe",
+            email = "jane.doe@example.com",
             password = "samplePassword123" // Password field exists, so providing a sample
         )
     }

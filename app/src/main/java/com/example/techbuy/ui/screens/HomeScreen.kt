@@ -17,17 +17,21 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items // For LazyGridScope (LazyVerticalGrid)
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Badge // Added import
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge // Added import
 import androidx.compose.material3.BadgedBox // Added import
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +39,8 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,7 +54,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -97,12 +105,72 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Menu Item 1")
+                // Inside ModalDrawerSheet
+                Column(
+                    modifier = Modifier.padding(16.dp), // Keep padding or adjust as needed
+                    horizontalAlignment = Alignment.CenterHorizontally // Center header content
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier.size(80.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Menu Item 2")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Menu Item 3")
+                    Text(
+                        text = "Kaveesha",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "kaveesha@techbuy.com",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider() // New Material 3 Divider
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Define menu items
+                    val menuItems = listOf(
+                        Triple("My Profile", Icons.Filled.Person, "profile_drawer_item"), // Added a unique key for selection state
+                        Triple("Cart", Icons.Filled.ShoppingCart, "cart_drawer_item"),
+                        Triple("Wishlist", Icons.Filled.FavoriteBorder, "wishlist_drawer_item")
+                    )
+
+                    // State for selected item in drawer (optional, but good for NavigationDrawerItem)
+                    var selectedDrawerItemKey by remember { mutableStateOf<String?>(null) }
+
+                    menuItems.forEach { item ->
+                        NavigationDrawerItem(
+                            icon = { Icon(item.second, contentDescription = item.first) },
+                            label = { Text(item.first) },
+                            selected = item.third == selectedDrawerItemKey, // Manage selection state
+                            onClick = {
+                                selectedDrawerItemKey = item.third
+                                scope.launch { drawerState.close() } // Close drawer on any item click
+
+                                when (item.first) { // Assuming item.first is "My Profile", "Cart", or "Wishlist"
+                                    "My Profile" -> {
+                                        navController.navigate("profile") {
+                                            popUpTo("home")
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    "Cart" -> {
+                                        navController.navigate("cart") {
+                                            popUpTo("home")
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                    "Wishlist" -> {
+                                        println("Wishlist clicked (Not implemented)")
+                                    }
+                                }
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp)) // Optional: space between items
+                    }
                 }
             }
         }
