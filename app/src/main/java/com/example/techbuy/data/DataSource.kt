@@ -15,4 +15,8 @@ object DataSource {
             Product(7, "MacBook M4", 3599.99, R.drawable.macbookm4),
         )
     }
+
+    fun getProductCategories(): List<String> {
+        return listOf("iPhones", "MacBooks")
+    }
 }
