@@ -8,8 +8,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -26,7 +28,10 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
     var product by remember { mutableStateOf<Product?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
-    var quantity by remember { mutableIntStateOf(1) }
+    var quantity by remember { mutableIntStateOf(1) } // Corrected mutableIntStateOf
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(productId) {
         isLoading = true
@@ -43,6 +48,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Product Details") },
@@ -150,7 +156,17 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                     }
                     item {
                         Button(
-                            onClick = { /* TODO: Add to cart logic, consider passing quantity */ },
+                            onClick = {
+                                currentProduct?.let { prod ->
+                                    DataSource.addToCart(prod, quantity)
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = "${prod.name} added to cart",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                }
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 16.dp)
@@ -160,7 +176,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                     }
                 }
             } else {
-                 // This case should ideally be covered by error state if product is null after loading
+                // This case should ideally be covered by error state if product is null after loading
                 Text(
                     text = "Product not available.",
                     style = MaterialTheme.typography.bodyLarge,

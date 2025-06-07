@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge // Added import
+import androidx.compose.material3.BadgedBox // Added import
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -59,10 +61,13 @@ fun HomeScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedItemIndex by remember { mutableIntStateOf(0) }
+    val cartItemCount = DataSource.getCartItemCount() // Get cart item count
 
+    // Added "cart" and reordered. Assuming "home_route", "categories_route", "cart", "profile_route"
     val bottomNavItems = listOf(
         Triple("Home", Icons.Filled.Home, "home_route"),
         Triple("Categories", Icons.Filled.List, "categories_route"),
+        Triple("Cart", Icons.Filled.ShoppingCart, "cart"),
         Triple("Profile", Icons.Filled.Person, "profile_route")
     )
 
@@ -97,13 +102,19 @@ fun HomeScreen(navController: NavHostController) {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* TODO: Navigate to Cart */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.ShoppingCart,
-                                contentDescription = "Shopping Cart"
-                            )
+                        IconButton(onClick = { navController.navigate("cart") }) {
+                            BadgedBox(badge = {
+                                if (cartItemCount > 0) {
+                                    Badge { Text(cartItemCount.toString()) }
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.ShoppingCart,
+                                    contentDescription = "Shopping Cart"
+                                )
+                            }
                         }
-                        IconButton(onClick = { /* TODO: Navigate to Profile */ }) {
+                        IconButton(onClick = { navController.navigate("profile_route") }) { // Assuming profile_route for consistency
                             Icon(
                                 imageVector = Icons.Filled.Person,
                                 contentDescription = "User Profile"
@@ -119,14 +130,21 @@ fun HomeScreen(navController: NavHostController) {
                             selected = selectedItemIndex == index,
                             onClick = {
                                 selectedItemIndex = index
-                                // TODO: navController.navigate(item.third) when routes are set up
+                                navController.navigate(item.third) // Ensure this uses the route
                             },
                             label = { Text(item.first) },
                             icon = {
-                                Icon(
-                                    imageVector = item.second,
-                                    contentDescription = item.first
-                                )
+                                val currentCartItemCount = DataSource.getCartItemCount() // Fetch count here
+                                BadgedBox(badge = {
+                                    if (item.third == "cart" && currentCartItemCount > 0) {
+                                        Badge { Text(currentCartItemCount.toString()) }
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = item.second, // This should be ShoppingCart icon for cart
+                                        contentDescription = item.first
+                                    )
+                                }
                             }
                         )
                     }

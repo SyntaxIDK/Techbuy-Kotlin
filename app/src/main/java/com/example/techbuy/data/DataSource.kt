@@ -1,9 +1,12 @@
 package com.example.techbuy.data
 
 import com.example.techbuy.data.models.Product
+import com.example.techbuy.data.models.CartItem
 import com.example.techbuy.R
 
 object DataSource {
+    private val cartItems = mutableListOf<CartItem>()
+
     fun getProducts(): List<Product> {
         return listOf(
             Product(
@@ -71,5 +74,41 @@ object DataSource {
 
     fun getProductById(productId: Int): Product? {
         return getProducts().find { it.id == productId }
+    }
+
+    fun addToCart(product: Product, quantity: Int) {
+        val existingItem = cartItems.find { it.product.id == product.id }
+        if (existingItem != null) {
+            existingItem.quantity += quantity
+        } else {
+            cartItems.add(CartItem(product, quantity))
+        }
+    }
+
+    fun getCartItems(): List<CartItem> {
+        return cartItems.toList() // Return a copy to prevent external modification
+    }
+
+    fun getCartItemCount(): Int {
+        return cartItems.sumOf { it.quantity }
+    }
+
+    fun clearCart() {
+        cartItems.clear()
+    }
+
+    fun removeCartItem(productId: Int) {
+        cartItems.removeAll { it.product.id == productId }
+    }
+
+    fun decreaseCartItemQuantity(productId: Int) {
+        val existingItem = cartItems.find { it.product.id == productId }
+        if (existingItem != null) {
+            if (existingItem.quantity > 1) {
+                existingItem.quantity--
+            } else {
+                removeCartItem(productId)
+            }
+        }
     }
 }
