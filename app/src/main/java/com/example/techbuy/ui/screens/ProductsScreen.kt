@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-// import androidx.compose.material3.Button // Button is not used
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,13 +21,7 @@ fun ProductsScreen(navController: NavHostController) {
         Text("Products List")
         LazyColumn {
             items(products) { product ->
-                ProductCard(
-                    productName = product.name,
-                    productImage = product.image,
-                    onClick = {
-                        navController.navigate("product_detail/${product.id}")
-                    }
-                )
+                ProductCard(product.name, product.image)
             }
         }
     }
