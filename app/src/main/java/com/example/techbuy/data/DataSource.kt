@@ -6,18 +6,67 @@ import com.example.techbuy.R
 object DataSource {
     fun getProducts(): List<Product> {
         return listOf(
-            Product(1, "iPhone 16", 999.99, R.drawable.iphone16),
-            Product(2, "iPhone 16 Pro", 1199.99, R.drawable.iphone16p),
-            Product(3, "iPhone 16 Pro Max", 1299.99, R.drawable.iphone16pm),
-            Product(4, "MacBook M1", 1999.99, R.drawable.macbookm1),
-            Product(5, "MacBook M2", 2599.99, R.drawable.macbookm2),
-            Product(6, "MacBook M3", 2999.99, R.drawable.macbookm3),
-            Product(7, "MacBook M4", 3599.99, R.drawable.macbookm4),
+            Product(
+                id = 1,
+                name = "iPhone 16",
+                image = R.drawable.iphone16,
+                price = 999.99,
+                category = "Smartphones",
+                description = "The latest iPhone with an advanced dual-camera system, A17 Bionic chip, and even longer battery life."
+            ),
+            Product(
+                id = 2,
+                name = "iPhone 16 Pro",
+                image = R.drawable.iphone16p,
+                price = 1199.99,
+                category = "Smartphones",
+                description = "The ultimate iPhone experience with a Pro camera system, ProMotion technology, and the powerful A17 Bionic chip."
+            ),
+            Product(
+                id = 3,
+                name = "iPhone 16 Pro Max",
+                image = R.drawable.iphone16pm,
+                price = 1299.99,
+                category = "Smartphones",
+                description = "The largest and most advanced iPhone, featuring a stunning display, incredible camera capabilities, and maximum performance."
+            ),
+            Product(
+                id = 4,
+                name = "MacBook M1",
+                image = R.drawable.macbookm1,
+                price = 1999.99,
+                category = "Laptops",
+                description = "The groundbreaking MacBook with the Apple M1 chip, offering incredible performance and battery life in a thin and light design."
+            ),
+            Product(
+                id = 5,
+                name = "MacBook M2",
+                image = R.drawable.macbookm2,
+                price = 2599.99,
+                category = "Laptops",
+                description = "Experience next-level performance with the MacBook powered by the Apple M2 chip, perfect for demanding workflows."
+            ),
+            Product(
+                id = 6,
+                name = "MacBook M3",
+                image = R.drawable.macbookm3,
+                price = 2999.99,
+                category = "Laptops",
+                description = "Unleash your creativity with the MacBook featuring the cutting-edge Apple M3 chip, delivering power and efficiency."
+            ),
+            Product(
+                id = 7,
+                name = "MacBook M4",
+                image = R.drawable.macbookm4,
+                price = 3599.99,
+                category = "Laptops",
+                description = "The pinnacle of MacBook performance, the M4 model redefines what's possible in a portable Mac."
+            )
         )
     }
 
     fun getProductCategories(): List<String> {
-        return listOf("iPhones", "MacBooks")
+        return listOf("Smartphones", "Laptops") // Updated categories to be more generic
     }
 
     fun getProductById(productId: Int): Product? {

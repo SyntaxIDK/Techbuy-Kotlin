@@ -2,10 +2,14 @@ package com.example.techbuy.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -22,6 +26,7 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
     var product by remember { mutableStateOf<Product?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    var quantity by remember { mutableIntStateOf(1) }
 
     LaunchedEffect(productId) {
         isLoading = true
@@ -69,37 +74,90 @@ fun ProductDetailScreen(navController: NavHostController, productId: Int) {
                 )
             } else if (product != null) {
                 val currentProduct = product!!
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(id = currentProduct.image),
-                        contentDescription = currentProduct.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                    Text(
-                        text = currentProduct.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Price: \$${String.format("%.2f", currentProduct.price)}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Button(
-                        onClick = { /* TODO: Add to cart logic */ },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Add to Cart")
+                    item {
+                        Image(
+                            painter = painterResource(id = currentProduct.image),
+                            contentDescription = currentProduct.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f),
+                            contentScale = ContentScale.Fit
+                        )
                     }
-                    Spacer(modifier = Modifier.weight(1f)) // Pushes button to bottom if Column is not filling height
+                    item {
+                        Text(
+                            text = currentProduct.name,
+                            style = MaterialTheme.typography.headlineMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    item {
+                        Text(
+                            text = "Price: \$${String.format("%.2f", currentProduct.price)}",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    item {
+                        Text(
+                            text = currentProduct.description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                    item {
+                        Text(
+                            "Specifications Placeholder",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            IconButton(onClick = { if (quantity > 1) quantity-- }) {
+                                Icon(
+                                    imageVector = Icons.Default.Remove,
+                                    contentDescription = "Decrease quantity"
+                                )
+                            }
+                            Text(
+                                text = quantity.toString(),
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            IconButton(onClick = { quantity++ }) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Increase quantity"
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        Button(
+                            onClick = { /* TODO: Add to cart logic, consider passing quantity */ },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                        ) {
+                            Text("Add to Cart")
+                        }
+                    }
                 }
             } else {
                  // This case should ideally be covered by error state if product is null after loading
