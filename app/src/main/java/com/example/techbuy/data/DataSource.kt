@@ -18,7 +18,7 @@ object DataSource {
                 price = 999.99,
                 category = "Smartphones",
                 description = "The latest iPhone with an advanced dual-camera system, A17 Bionic chip, and even longer battery life.",
-                colors = listOf("Black", "White", "Blue"),
+                colors = listOf("Black", "White", "Blue", "Pink"),
                 romOptions = listOf("128GB", "256GB", "512GB")
             ),
             Product(
@@ -28,8 +28,8 @@ object DataSource {
                 price = 1199.99,
                 category = "Smartphones",
                 description = "The ultimate iPhone experience with a Pro camera system, ProMotion technology, and the powerful A17 Bionic chip.",
-                colors = listOf("Graphite", "Silver", "Gold"),
-                romOptions = listOf("256GB", "512GB", "1TB")
+                colors = listOf("Graphite", "Silver", "Gold", "Sierra Blue"),
+                romOptions = listOf("128GB", "256GB", "512GB", "1TB")
             ),
             Product(
                 id = 3,
@@ -38,8 +38,8 @@ object DataSource {
                 price = 1299.99,
                 category = "Smartphones",
                 description = "The largest and most advanced iPhone, featuring a stunning display, incredible camera capabilities, and maximum performance.",
-                colors = listOf("Graphite", "Silver", "Gold"),
-                romOptions = listOf("256GB", "512GB", "1TB")
+                colors = listOf("Graphite", "Silver", "Gold", "Sierra Blue"),
+                romOptions = listOf("128GB", "256GB", "512GB", "1TB")
             ),
             Product(
                 id = 4,
@@ -58,8 +58,8 @@ object DataSource {
                 price = 2599.99,
                 category = "Laptops",
                 description = "Experience next-level performance with the MacBook powered by the Apple M2 chip, perfect for demanding workflows.",
-                colors = listOf("Space Gray", "Silver", "Midnight"),
-                romOptions = listOf("256GB", "512GB", "1TB")
+                colors = listOf("Space Gray", "Silver", "Midnight", "Starlight"),
+                romOptions = listOf("256GB", "512GB", "1TB", "2TB")
             ),
             Product(
                 id = 6,

@@ -17,8 +17,8 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items // For LazyGridScope (LazyVerticalGrid)
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -70,7 +70,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean = false) {
+fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean = false, toggleTheme: () -> Unit) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedItemIndex by remember { mutableIntStateOf(0) }
@@ -212,6 +212,12 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
                             Icon(
                                 imageVector = Icons.Filled.Person,
                                 contentDescription = "User Profile"
+                            )
+                        }
+                        IconButton(onClick = toggleTheme) {
+                            Icon(
+                                imageVector = Icons.Filled.BrightnessMedium,
+                                contentDescription = "Toggle Theme"
                             )
                         }
                     }

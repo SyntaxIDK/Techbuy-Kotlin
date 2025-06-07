@@ -12,7 +12,7 @@ import com.example.techbuy.ui.screens.EditProfileScreen // Added import
 import com.example.techbuy.ui.screens.WishlistScreen
 
 @Composable
-fun TechBuyNavigation(navController: NavHostController) {
+fun TechBuyNavigation(navController: NavHostController, toggleTheme: () -> Unit) {
     NavHost(navController = navController, startDestination = "welcome") {
         composable("welcome") {WelcomeScreen(navController)}
         composable("login") { LoginScreen(navController) }
@@ -25,7 +25,7 @@ fun TechBuyNavigation(navController: NavHostController) {
             })
         ) { backStackEntry ->
             val showSelector = backStackEntry.arguments?.getBoolean("showCategorySelector") ?: false
-            HomeScreen(navController = navController, showCategorySelector = showSelector)
+            HomeScreen(navController = navController, showCategorySelector = showSelector, toggleTheme = toggleTheme)
         }
         composable("products") { ProductsScreen(navController) }
         composable(
