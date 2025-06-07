@@ -17,7 +17,7 @@ fun ProductDetailScreen(navController: NavHostController) {
     val product = Product(1, "iPhone 13", 999.99, com.example.techbuy.R.drawable.iphone)
 
     Column(modifier = Modifier.padding(16.dp)) {
-        ProductCard(product.name, product.image)
+        ProductCard(product.name, product.image, onClick = {}) // onClick added
         Text("Price: \$${product.price}")
         Button(onClick = { /* Navigate to Cart */ }) {
             Text("Add to Cart")
