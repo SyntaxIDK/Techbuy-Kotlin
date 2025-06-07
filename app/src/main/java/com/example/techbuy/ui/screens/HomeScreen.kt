@@ -146,7 +146,8 @@ fun HomeScreen(navController: NavHostController) {
                 ProductGrid(
                     products = products,
                     onProductClick = { product ->
-                        // TODO: Handle product click: e.g., navigate to product detail screen
+                        // Navigate to product detail screen
+                        navController.navigate("product_detail")
                     }
                 )
             }
@@ -205,7 +206,8 @@ private fun ProductGrid(products: List<Product>, onProductClick: (Product) -> Un
         items(products, key = { product -> product.id }) { product ->
             ProductCard(
                 productName = product.name,
-                productImage = product.image
+                productImage = product.image,
+                onClick = { onProductClick(product) } // Pass the product to the handler
             )
         }
     }
