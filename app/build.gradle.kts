@@ -55,6 +55,7 @@ dependencies {
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.32.0") // Or the latest version
 
     // Testing
     testImplementation("junit:junit:4.13.2")
