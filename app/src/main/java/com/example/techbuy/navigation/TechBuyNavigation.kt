@@ -1,5 +1,9 @@
 package com.example.techbuy.navigation
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -17,14 +21,18 @@ import com.example.techbuy.ui.screens.OrderConfirmationScreen
 fun TechBuyNavigation(navController: NavHostController, toggleTheme: () -> Unit) {
     NavHost(navController = navController, startDestination = "welcome") {
         composable("welcome") {WelcomeScreen(navController)}
-        composable("login") { LoginScreen(navController) }
+        composable(
+            "login",
+            exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } + fadeOut() }
+        ) { LoginScreen(navController) }
         composable("register") { RegisterScreen(navController) }
         composable(
             route = "home?showCategorySelector={showCategorySelector}",
             arguments = listOf(navArgument("showCategorySelector") {
                 type = NavType.BoolType
                 defaultValue = false
-            })
+            }),
+            enterTransition = { slideInHorizontally { fullWidth -> fullWidth } + fadeIn() }
         ) { backStackEntry ->
             val showSelector = backStackEntry.arguments?.getBoolean("showCategorySelector") ?: false
             HomeScreen(navController = navController, showCategorySelector = showSelector, toggleTheme = toggleTheme)
