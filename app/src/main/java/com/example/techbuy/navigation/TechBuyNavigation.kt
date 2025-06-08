@@ -1,9 +1,10 @@
 package com.example.techbuy.navigation
 
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -23,7 +24,10 @@ fun TechBuyNavigation(navController: NavHostController, toggleTheme: () -> Unit)
         composable("welcome") {WelcomeScreen(navController)}
         composable(
             "login",
-            exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } + fadeOut() }
+            exitTransition = {
+                scaleOut(animationSpec = tween(durationMillis = 300)) +
+                        fadeOut(animationSpec = tween(durationMillis = 300))
+            }
         ) { LoginScreen(navController) }
         composable("register") { RegisterScreen(navController) }
         composable(
@@ -32,7 +36,10 @@ fun TechBuyNavigation(navController: NavHostController, toggleTheme: () -> Unit)
                 type = NavType.BoolType
                 defaultValue = false
             }),
-            enterTransition = { slideInHorizontally { fullWidth -> fullWidth } + fadeIn() }
+            enterTransition = {
+                scaleIn(animationSpec = tween(durationMillis = 300, delayMillis = 150)) +
+                        fadeIn(animationSpec = tween(durationMillis = 300, delayMillis = 150))
+            }
         ) { backStackEntry ->
             val showSelector = backStackEntry.arguments?.getBoolean("showCategorySelector") ?: false
             HomeScreen(navController = navController, showCategorySelector = showSelector, toggleTheme = toggleTheme)
