@@ -19,7 +19,7 @@ fun OrderConfirmationScreen(navController: NavHostController) {
             TopAppBar(
                 title = { Text("Order Confirmed") },
                 navigationIcon = {
-                    // Optional: Navigate back to home or clear back stack to prevent going back to checkout
+                    // Navigate back to home or clear back stack to prevent going back to checkout
                     IconButton(onClick = {
                         navController.navigate("home") {
                             popUpTo(navController.graph.startDestinationId) {

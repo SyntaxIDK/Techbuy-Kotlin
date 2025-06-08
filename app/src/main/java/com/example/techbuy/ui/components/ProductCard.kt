@@ -32,7 +32,7 @@ fun ProductCard(
         modifier = Modifier
             .fillMaxWidth() // Card should fill the width allocated by the grid cell
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp) // Optional: add some elevation
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp) // add some elevation
     ) {
         Column(
             modifier = Modifier.padding(12.dp), // Adjusted padding inside the card

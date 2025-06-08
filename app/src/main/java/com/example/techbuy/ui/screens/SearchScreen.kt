@@ -22,7 +22,7 @@ fun SearchScreen(navController: NavHostController) {
             onValueChange = { searchQuery.value = it },
             label = { Text("Search") }
         )
-        // You can later implement the actual search functionality
+        // later implement the actual search functionality
         Text("Searching for: ${searchQuery.value}")
     }
 }

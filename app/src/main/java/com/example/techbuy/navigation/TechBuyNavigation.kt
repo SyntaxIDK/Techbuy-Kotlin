@@ -7,12 +7,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType // Added import
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument // Added import
+import androidx.navigation.navArgument
 import com.example.techbuy.ui.screens.*
-import com.example.techbuy.ui.screens.EditProfileScreen // Added import
+import com.example.techbuy.ui.screens.EditProfileScreen
 import com.example.techbuy.ui.screens.WishlistScreen
 import com.example.techbuy.ui.screens.CheckoutScreen
 import com.example.techbuy.ui.screens.OrderConfirmationScreen
@@ -39,8 +39,8 @@ fun TechBuyNavigation(navController: NavHostController, toggleTheme: () -> Unit)
         }
         composable("products") { ProductsScreen(navController) }
         composable(
-            route = "product_detail/{productId}", // Changed route
-            arguments = listOf(navArgument("productId") { type = NavType.IntType }) // Added arguments
+            route = "product_detail/{productId}",
+            arguments = listOf(navArgument("productId") { type = NavType.IntType })
         ) { backStackEntry ->
             // Retrieve productId. ProductDetailScreen will be updated later to accept it.
             val productId = backStackEntry.arguments?.getInt("productId")
@@ -57,7 +57,7 @@ fun TechBuyNavigation(navController: NavHostController, toggleTheme: () -> Unit)
         }
         composable("cart") { CartScreen(navController) }
         composable("profile") { ProfileScreen(navController) }
-        composable("edit_profile") { EditProfileScreen(navController) } // Added route
+        composable("edit_profile") { EditProfileScreen(navController) }
         composable("search") { SearchScreen(navController) }
         composable("wishlist") { WishlistScreen(navController) }
         composable("checkout") { CheckoutScreen(navController) }

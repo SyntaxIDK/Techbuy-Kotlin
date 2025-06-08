@@ -95,7 +95,7 @@ fun WelcomeScreen(navController: NavHostController) {
                         Text("Sign Up", style = MaterialTheme.typography.bodyLarge.copy(color = Color.White))
                     }
 
-                    // Social Media Links (Optional)
+                    // Social Media Links passe danawa
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()

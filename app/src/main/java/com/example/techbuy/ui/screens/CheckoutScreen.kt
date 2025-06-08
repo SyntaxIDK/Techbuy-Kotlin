@@ -24,13 +24,13 @@ fun CheckoutScreen(navController: NavHostController) {
     var fullName by remember { mutableStateOf("") }
     var streetAddress by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
-    var state by remember { mutableStateOf("") } // This will be updated by the Dropdown
+    var state by remember { mutableStateOf("") }
     var zipCode by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var emailAddress by remember { mutableStateOf("") }
     var cardNumber by remember { mutableStateOf("") }
     var expiryDate by remember { mutableStateOf("") }
-    var cvv by remember { mutableStateOf("") } // Corrected typo: mutableStateOF -> mutableStateOf
+    var cvv by remember { mutableStateOf("") }
     var expandedStateDropdown by remember { mutableStateOf(false) }
     var saveShippingInfo by remember { mutableStateOf(false) }
     var selectedPaymentMethod by remember { mutableStateOf("Credit Card") }

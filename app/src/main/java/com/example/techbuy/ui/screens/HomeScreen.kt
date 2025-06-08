@@ -144,7 +144,7 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
                         Triple("Wishlist", Icons.Filled.FavoriteBorder, "wishlist_drawer_item")
                     )
 
-                    // State for selected item in drawer (optional, but good for NavigationDrawerItem)
+                    // State for selected item in drawer
                     var selectedDrawerItemKey by remember { mutableStateOf<String?>(null) }
 
                     menuItems.forEach { item ->
@@ -179,7 +179,7 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
                             },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
-                        Spacer(modifier = Modifier.height(4.dp)) // Optional: space between items
+                        Spacer(modifier = Modifier.height(4.dp)) // space between items
                     }
                 }
             }
