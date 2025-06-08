@@ -4,44 +4,60 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme // Added for typography
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment // Added for alignment
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale // Added for Image scaling
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign // Added for text alignment
 import androidx.compose.ui.unit.dp
-// Removed com.example.techbuy.R as it's not directly used in this snippet, assuming productImage is a drawable resource ID
 
 @Composable
 fun ProductCard(
     productName: String,
     productImage: Int,
-    productPrice: Double, // Added productPrice parameter
+    productPrice: Double,
     onClick: () -> Unit
 ) {
-    Card(modifier = Modifier.padding(8.dp).clickable { onClick() }) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth() // Card should fill the width allocated by the grid cell
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp) // Optional: add some elevation
+    ) {
         Column(
-            modifier = Modifier.padding(16.dp), // Increased padding for better spacing
-            horizontalAlignment = Alignment.CenterHorizontally // Center content
+            modifier = Modifier.padding(8.dp), // Reduced padding inside the card
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = productImage),
-                contentDescription = productName, // Use productName for better accessibility
-                modifier = Modifier.height(120.dp) // Give image a fixed height
+                contentDescription = productName,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f), // Square aspect ratio for the image
+                contentScale = ContentScale.Crop // Crop image to fill bounds
             )
-            Spacer(modifier = Modifier.height(8.dp)) // Spacer for visual separation
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = productName,
-                style = MaterialTheme.typography.titleMedium // Use a slightly larger style for name
+                style = MaterialTheme.typography.titleSmall, // Adjusted for potentially less space
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(4.dp)) // Spacer
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "$${String.format("%.2f", productPrice)}", // Display formatted price
-                style = MaterialTheme.typography.bodyLarge // Use a clear style for price
+                text = "$${String.format("%.2f", productPrice)}",
+                style = MaterialTheme.typography.bodyMedium, // Adjusted for potentially less space
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
