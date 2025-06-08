@@ -48,7 +48,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -73,6 +76,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean = false, toggleTheme: () -> Unit) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val topAppBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
     val scope = rememberCoroutineScope()
     var selectedItemIndex by remember { mutableIntStateOf(0) }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
@@ -181,6 +186,7 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
         }
     ) {
         Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 TopAppBar(
                     title = { Text("TechBuy") },
@@ -221,7 +227,8 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
                                 contentDescription = "Toggle Theme"
                             )
                         }
-                    }
+                    },
+                    scrollBehavior = scrollBehavior
                 )
             },
             bottomBar = {

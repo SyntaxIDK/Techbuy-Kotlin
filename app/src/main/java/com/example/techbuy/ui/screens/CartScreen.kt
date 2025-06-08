@@ -9,10 +9,15 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Image
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -20,11 +25,23 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.techbuy.data.DataSource
 import com.example.techbuy.data.models.CartItem
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.rememberCoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(navController: NavHostController) {
     var cartItems by remember { mutableStateOf(DataSource.getCartItems()) }
+    var cartContentVisible by remember { mutableStateOf(false) }
+    var isDeleting by remember { mutableStateOf(false) }
+
+    val rotationAngle by animateFloatAsState(targetValue = if (isDeleting) 360f else 0f, animationSpec = tween(durationMillis = 500))
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        cartContentVisible = true
+    }
 
     fun updateCartItems() {
         cartItems = DataSource.getCartItems()
@@ -36,22 +53,32 @@ fun CartScreen(navController: NavHostController) {
                 title = { Text("Your Cart") },
                 actions = {
                     IconButton(onClick = {
-                        DataSource.clearCart()
-                        updateCartItems()
+                        scope.launch {
+                            isDeleting = true
+                            delay(500L) // Ensure L for Long
+                            DataSource.clearCart()
+                            updateCartItems()
+                            isDeleting = false
+                        }
                     }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Clear Cart")
+                        val iconModifier = Modifier.rotate(rotationAngle)
+                        Icon(Icons.Filled.Delete, contentDescription = "Clear Cart", modifier = iconModifier)
                     }
                 }
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
+        AnimatedVisibility(
+            visible = cartContentVisible,
+            enter = slideInHorizontally(initialOffsetX = { it })
         ) {
-            if (cartItems.isEmpty()) {
-                Box(
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ) {
+                if (cartItems.isEmpty()) {
+                    Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
@@ -120,6 +147,7 @@ fun CartScreen(navController: NavHostController) {
                         .padding(16.dp)
                 ) {
                     Text("Proceed to Checkout")
+                }
                 }
             }
         }
