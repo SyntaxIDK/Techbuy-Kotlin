@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Techbuy" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.Techbuy" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
+        <!-- It's good practice to also ensure core Material color attributes are set
+             if not already handled by the parent or Compose theme, e.g.:
+             <item name="colorPrimary">@color/primary_color_from_colors_xml</item>
+             <item name="colorOnPrimary">@color/on_primary_color_from_colors_xml</item>
+             However, since the app is primarily Compose, Compose's MaterialTheme will handle
+             the actual UI component colors. This change is mainly for the Activity's base theme
+             to correctly acknowledge system UI mode. -->
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
