@@ -17,17 +17,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         ThemePreferenceManager.init(applicationContext) // Initialize ThemePreferenceManager
         setContent {
-            // Load theme preference, fallback to system setting if none is saved
-            val initialDarkTheme = ThemePreferenceManager.loadTheme() ?: isSystemInDarkTheme()
-            val isDarkTheme = remember { mutableStateOf(initialDarkTheme) }
+            val userThemePreference = remember { mutableStateOf(ThemePreferenceManager.loadTheme()) }
+            val systemIsDark = isSystemInDarkTheme() // This will be reactive
 
-            val toggleTheme: () -> Unit = {
-                isDarkTheme.value = !isDarkTheme.value
-                ThemePreferenceManager.saveTheme(isDarkTheme.value) // Save theme preference
+            val toggleThemeCallback = {
+                val currentPref = userThemePreference.value
+                val newPref: Boolean? = when (currentPref) {
+                    null -> !systemIsDark // Was System, override to opposite of current system.
+                    true -> false          // Was Dark, set preference to Light.
+                    false -> null         // Was Light, set preference to System (null).
+                }
+                userThemePreference.value = newPref
+                ThemePreferenceManager.saveTheme(newPref)
             }
-            AppTheme(darkTheme = isDarkTheme.value) {  // AppTheme is now correctly wrapped here
+
+            AppTheme(userPreferenceIsDark = userThemePreference.value) {
                 val navController = rememberNavController()
-                TechBuyNavigation(navController, toggleTheme)
+                // Pass the new toggleThemeCallback to TechBuyNavigation
+                TechBuyNavigation(navController, toggleThemeCallback)
             }
         }
     }

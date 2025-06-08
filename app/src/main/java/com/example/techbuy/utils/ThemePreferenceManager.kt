@@ -16,8 +16,12 @@ object ThemePreferenceManager {
         }
     }
 
-    fun saveTheme(isDarkTheme: Boolean) {
-        sharedPreferences?.edit()?.putBoolean(KEY_IS_DARK_THEME, isDarkTheme)?.apply()
+    fun saveTheme(isDarkTheme: Boolean?) {
+        if (isDarkTheme == null) {
+            sharedPreferences?.edit()?.remove(KEY_IS_DARK_THEME)?.apply()
+        } else {
+            sharedPreferences?.edit()?.putBoolean(KEY_IS_DARK_THEME, isDarkTheme)?.apply()
+        }
     }
 
     // Returns null if no preference is saved, true if dark, false if light.
