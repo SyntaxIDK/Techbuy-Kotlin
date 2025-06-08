@@ -88,7 +88,7 @@ fun CartScreen(navController: NavHostController) {
                         .align(Alignment.End)
                 )
                 Button(
-                    onClick = { /* TODO: Navigate to checkout */ },
+                    onClick = { navController.navigate("checkout") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
