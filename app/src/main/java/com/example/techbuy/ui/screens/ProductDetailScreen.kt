@@ -17,17 +17,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.coroutines.launch
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -66,13 +63,8 @@ fun ShimmerPlaceholder(modifier: Modifier = Modifier) {
 }
 
 // Extracted composable for Product Image
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ProductImage(
-    product: Product,
-    productId: Int, // For shared element key
-    animatedVisibilityScope: AnimatedVisibilityScope // For shared element
-) {
+fun ProductImage(product: Product) {
     var showShimmer by remember { mutableStateOf(true) }
     val imageModifier = Modifier
         .fillMaxWidth()
@@ -87,20 +79,13 @@ fun ProductImage(
         if (showShimmer) {
             ShimmerPlaceholder(modifier = Modifier.fillMaxSize())
         }
-        with(animatedVisibilityScope) { // Scope for sharedElement
-            Image(
-                painter = painterResource(id = product.image),
-                contentDescription = product.name,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .sharedElement(
-                        state = rememberSharedContentState(key = "image-${productId}"),
-                        animatedVisibilityScope = this@with
-                    ),
-                contentScale = ContentScale.Fit,
-                alpha = if (showShimmer) 0f else 1f // Hide image content while shimmer is visible
-            )
-        }
+        Image(
+            painter = painterResource(id = product.image),
+            contentDescription = product.name,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Fit,
+            alpha = if (showShimmer) 0f else 1f // Hide image content while shimmer is visible
+        )
     }
 }
 
@@ -306,13 +291,9 @@ fun RomSelector(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductDetailScreen(
-    navController: NavHostController,
-    productId: Int,
-    animatedVisibilityScope: AnimatedVisibilityScope // Added parameter
-) {
+fun ProductDetailScreen(navController: NavHostController, productId: Int) {
     var product by remember { mutableStateOf<Product?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -441,11 +422,7 @@ fun ProductDetailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     item {
-                        ProductImage(
-                            product = currentProduct,
-                            productId = productId, // Pass productId
-                            animatedVisibilityScope = animatedVisibilityScope // Pass scope
-                        )
+                        ProductImage(product = currentProduct)
                     }
                     item { // Spacer after Image
                         Spacer(modifier = Modifier.height(16.dp))

@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,12 +13,8 @@ import androidx.navigation.NavHostController
 import com.example.techbuy.data.DataSource
 import com.example.techbuy.ui.components.ProductCard
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun ProductsScreen(
-    navController: NavHostController,
-    animatedVisibilityScope: AnimatedVisibilityScope // Added parameter
-) {
+fun ProductsScreen(navController: NavHostController) {
     val products = DataSource.getProducts()
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -30,12 +24,11 @@ fun ProductsScreen(
                 ProductCard(
                     productName = product.name,
                     productImage = product.image,
-                    productPrice = product.price,
-                    productId = product.id, // Pass product ID
-                    animatedVisibilityScope = animatedVisibilityScope, // Pass scope
+                    productPrice = product.price, // Added productPrice
                     onClick = {
-                        // Navigate to product detail screen
-                        navController.navigate("product_detail/${product.id}")
+                        // Decide if clicking products on this screen should also navigate
+                        // For now, retain the empty onClick from previous fix unless specified otherwise.
+                        // If navigation is needed: navController.navigate("product_detail/${product.id}")
                     }
                 )
             }
