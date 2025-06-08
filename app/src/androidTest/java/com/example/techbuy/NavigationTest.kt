@@ -58,5 +58,30 @@ class NavigationTest {
         // Verify that the ProductsScreen is displayed
         // We can check for a UI element unique to ProductsScreen, e.g., the title "Products List"
         composeTestRule.onNodeWithText("Products List").assertIsDisplayed()
+
+        // Step 3: Interact with an item in the grid
+        // Placeholder: Assume "iPhone 13 Pro" is a product name displayed.
+        // In a real scenario, use a more reliable selector or data from a known source.
+        val productNameToClick = "iPhone 13 Pro" // Example product name
+
+        // Wait for product to be available
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            try {
+                composeTestRule.onNodeWithText(productNameToClick).assertExists()
+                true
+            } catch (e: AssertionError) {
+                false
+            }
+        }
+        // Click on the product card (identified by the product name text)
+        composeTestRule.onNodeWithText(productNameToClick).performClick()
+
+        // Step 4: Verify navigation to ProductDetailScreen
+        // Placeholder: Assume ProductDetailScreen also displays the product name prominently.
+        // This assertion might need to be more specific based on ProductDetailScreen's actual content.
+        composeTestRule.onNodeWithText(productNameToClick, substring = true).assertIsDisplayed()
+        // Additionally, one might check for other elements unique to ProductDetailScreen if available.
+        // For example, if there's a button "Add to Cart" on the detail screen:
+        // composeTestRule.onNodeWithText("Add to Cart").assertIsDisplayed()
     }
 }

@@ -85,7 +85,7 @@ object DataSource {
     }
 
     fun getProductCategories(): List<String> {
-        return listOf("Smartphones", "Laptops") // Updated categories to be more generic
+        return listOf("Smartphones", "Laptops", "Headsets", "Watches") // Added Headsets and Watches
     }
 
     fun getProductById(productId: Int): Product? {
