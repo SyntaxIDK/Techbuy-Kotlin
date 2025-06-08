@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Badge // Added import
 import androidx.compose.material3.BadgedBox // Added import
 import androidx.compose.material3.BottomAppBar
@@ -22,6 +23,9 @@ fun BottomNavBar(navController: NavHostController) { // Added navController para
     BottomAppBar {
         IconButton(onClick = { navController.navigate("home_route") }) { // Assuming "home_route"
             Icon(imageVector = Icons.Filled.Home, contentDescription = "Home")
+        }
+        IconButton(onClick = { navController.navigate("products") }) {
+            Icon(imageVector = Icons.Filled.Store, contentDescription = "Shop")
         }
         IconButton(onClick = { navController.navigate("cart") }) { // Updated for cart
             BadgedBox(badge = {
