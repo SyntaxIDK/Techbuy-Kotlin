@@ -11,9 +11,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.techbuy.data.DataSource
 import com.example.techbuy.data.models.CartItem
 
@@ -79,6 +82,28 @@ fun CartScreen(navController: NavHostController) {
                     }
                 }
 
+                // Payment Buttons Column
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = { /*TODO: Implement PayPal payment*/ },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Pay with PayPal")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { /*TODO: Implement Google Pay payment*/ },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Pay with Google")
+                    }
+                }
+
                 val totalPrice = cartItems.sumOf { it.product.price * it.quantity }
                 Text(
                     text = "Total: \$${String.format("%.2f", totalPrice)}",
@@ -110,38 +135,69 @@ fun CartListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 12.dp), // Increased padding for better spacing
+        verticalAlignment = Alignment.Top // Align items to the top for better visual hierarchy
     ) {
+        // Product Image
+        AsyncImage(
+            model = item.product.imageUrl,
+            contentDescription = item.product.name,
+            modifier = Modifier
+                .size(100.dp) // Fixed size for the image
+                .clip(MaterialTheme.shapes.medium), // Rounded corners
+            contentScale = ContentScale.Crop // Crop image to fit
+        )
+
+        Spacer(modifier = Modifier.width(16.dp)) // Space between image and details
+
+        // Product Details and Controls
         Column(modifier = Modifier.weight(1f)) {
-            Text(item.product.name, style = MaterialTheme.typography.titleMedium)
-            // Display selected color and ROM
+            Text(item.product.name, style = MaterialTheme.typography.titleLarge) // Larger title
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Selected Attributes
             item.selectedColor?.let {
-                Text("Color: $it", style = MaterialTheme.typography.bodySmall)
+                Text("Color: $it", style = MaterialTheme.typography.bodyMedium)
             }
             item.selectedRom?.let {
-                Text("Storage: $it", style = MaterialTheme.typography.bodySmall)
+                Text("Storage: $it", style = MaterialTheme.typography.bodyMedium)
             }
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 "Price: \$${String.format("%.2f", item.product.price)}",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyLarge // Slightly larger price text
             )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Quantity Controls
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onDecreaseQuantity, modifier = Modifier.size(36.dp)) { // Smaller IconButtons
+                    Icon(Icons.Filled.Remove, contentDescription = "Decrease Quantity")
+                }
+                Text(
+                    item.quantity.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                IconButton(onClick = onIncreaseQuantity, modifier = Modifier.size(36.dp)) {
+                    Icon(Icons.Filled.Add, contentDescription = "Increase Quantity")
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text(
-                "Item Total: \$${String.format("%.2f", item.product.price * item.quantity)}",
-                style = MaterialTheme.typography.bodyMedium
+                "Subtotal: \$${String.format("%.2f", item.product.price * item.quantity)}",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) // Bold subtotal
             )
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onDecreaseQuantity) {
-                Icon(Icons.Filled.Remove, contentDescription = "Decrease Quantity")
-            }
-            Text(item.quantity.toString(), style = MaterialTheme.typography.titleMedium)
-            IconButton(onClick = onIncreaseQuantity) {
-                Icon(Icons.Filled.Add, contentDescription = "Increase Quantity")
-            }
-            IconButton(onClick = onRemoveItem) {
-                Icon(Icons.Filled.Delete, contentDescription = "Remove Item")
-            }
+
+        // Remove Button - aligned to the side
+        IconButton(
+            onClick = onRemoveItem,
+            modifier = Modifier.align(Alignment.Top) // Align to top of the Row
+        ) {
+            Icon(Icons.Filled.Delete, contentDescription = "Remove Item")
         }
     }
 }
