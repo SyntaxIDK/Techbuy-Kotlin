@@ -21,8 +21,9 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+// import androidx.compose.material.icons.filled.List // No longer needed for bottomNavItems
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Store // Added for Shop icon
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
@@ -94,12 +95,12 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
         )
     }
 
-    // Added "cart" and reordered. Assuming "home_route", "categories_route", "cart", "profile_route"
+    // Updated bottomNavItems: "Categories" replaced with "Shop"
     val bottomNavItems = listOf(
-        Triple("Home", Icons.Filled.Home, "home"), // Changed
-        Triple("Categories", Icons.Filled.List, "home"), // Changed
-        Triple("Cart", Icons.Filled.ShoppingCart, "cart"), // Stays the same
-        Triple("Profile", Icons.Filled.Person, "profile") // Changed
+        Triple("Home", Icons.Filled.Home, "home"),
+        Triple("Shop", Icons.Filled.Store, "products"), // Changed from Categories
+        Triple("Cart", Icons.Filled.ShoppingCart, "cart"),
+        Triple("Profile", Icons.Filled.Person, "profile")
     )
 
     ModalNavigationDrawer(
@@ -230,18 +231,15 @@ fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean =
                             selected = selectedItemIndex == index,
                             onClick = {
                                 selectedItemIndex = index
-                                if (item.first == "Categories") { // Check if the item is "Categories" by its name (item.first)
-                                    navController.navigate("home?showCategorySelector=true") {
-                                        popUpTo("home") { inclusive = true }
-                                        launchSingleTop = true
+                                // Simplified onClick: "Categories" specific logic removed
+                                navController.navigate(item.third) {
+                                    // Consistent popUpTo logic for all items, adjust if needed
+                                    // If navigating to "home", it effectively just selects it.
+                                    // If navigating elsewhere, popUpTo("home") keeps the backstack clean.
+                                    if (item.third != "home") {
+                                         popUpTo("home")
                                     }
-                                } else {
-                                    navController.navigate(item.third) {
-                                        if (item.third != "home") {
-                                             popUpTo("home")
-                                        }
-                                        launchSingleTop = true
-                                    }
+                                    launchSingleTop = true
                                 }
                             },
                             label = { Text(item.first) },
