@@ -53,8 +53,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -70,14 +68,9 @@ import com.example.techbuy.data.models.Product // Ensure this is imported
 import com.example.techbuy.ui.components.ProductCard
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-    navController: NavHostController,
-    showCategorySelector: Boolean = false,
-    toggleTheme: () -> Unit,
-    animatedVisibilityScope: AnimatedVisibilityScope // Added parameter
-) {
+fun HomeScreen(navController: NavHostController, showCategorySelector: Boolean = false, toggleTheme: () -> Unit) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedItemIndex by remember { mutableIntStateOf(0) }
@@ -294,8 +287,7 @@ fun HomeScreen(
                     onProductClick = { product ->
                         // Navigate to product detail screen with product ID
                         navController.navigate("product_detail/${product.id}")
-                    },
-                    animatedVisibilityScope = animatedVisibilityScope // Pass scope
+                    }
                     // Removed onCategoryClick from ProductGrid call site
                 )
             }
@@ -391,12 +383,10 @@ private fun HomeBanner() {
 }
 
 @Composable
-@OptIn(ExperimentalSharedTransitionApi::class)
 private fun ProductGrid(
     products: List<Product>,
     categories: List<String>, // categories is still available if needed by ProductGrid, or can be removed if not
-    onProductClick: (Product) -> Unit,
-    animatedVisibilityScope: AnimatedVisibilityScope // Added parameter
+    onProductClick: (Product) -> Unit
     // Removed onCategoryClick from ProductGrid definition
 ) {
     LazyVerticalGrid(
@@ -414,9 +404,7 @@ private fun ProductGrid(
             ProductCard(
                 productName = product.name,
                 productImage = product.image,
-                productPrice = product.price,
-                productId = product.id, // Pass product ID
-                animatedVisibilityScope = animatedVisibilityScope, // Pass scope
+                productPrice = product.price, // Added productPrice
                 onClick = { onProductClick(product) }
             )
         }
