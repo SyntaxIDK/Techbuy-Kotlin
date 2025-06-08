@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale // Added for Image scaling
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight // Added for FontWeight
 import androidx.compose.ui.text.style.TextAlign // Added for text alignment
 import androidx.compose.ui.unit.dp
 
@@ -34,7 +35,7 @@ fun ProductCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp) // Optional: add some elevation
     ) {
         Column(
-            modifier = Modifier.padding(8.dp), // Reduced padding inside the card
+            modifier = Modifier.padding(12.dp), // Adjusted padding inside the card
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
@@ -55,7 +56,10 @@ fun ProductCard(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "$${String.format("%.2f", productPrice)}",
-                style = MaterialTheme.typography.bodyMedium, // Adjusted for potentially less space
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                ), // Enhanced style for price
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
