@@ -30,7 +30,7 @@ To build and run the TechBuy application:
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/Techbuy-latest.git
+    git clone https://github.com/SyntaxIDK/Techbuy-Kotlin.git
     ```
 
 2.  **Open in Android Studio:**
